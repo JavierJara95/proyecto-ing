@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <title>SMAA - Comprobante</title>
+</head>
+
+<body>
+  <header class="topbar">
+    <a href="index.html"><img src="ref\logo.png" alt="Logo header" /></a>
+    <div class="brand">SMAA</div>
+    <nav>
+      <a href="index.html">Inicio</a><a href="login.html">Login</a><a href="dashboard-viajero.html">Viajero</a><a
+        href="panel-funcionario.html">Funcionario</a><a href="reportes.html">Reportes</a>
+    </nav>
+  </header>
+  <main class="container">
+    <h1>Comprobante QR simulado</h1>
+    <form class="form" onsubmit="verComprobante(event)">
+      <label>Folio<input id="folio" required value="SMAA-2026-0001" /></label><button class="btn">Buscar
+        comprobante</button>
+    </form>
+    <pre id="resultado"></pre>
+  </main>
+  <script src="js/app.js"></script>
+</body>
+
+</html>
