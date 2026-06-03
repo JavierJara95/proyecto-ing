@@ -2,8 +2,8 @@
 -- This file is executed by Spring Boot after JPA schema initialization.
 
 INSERT INTO usuarios (id, nombre, apellido, correo, documento, password, rol, activo) VALUES
-  (1, 'Juan', 'Pérez', 'juan.perez@example.com', '12345678-9', 'password123', 'VIAJERO', true),
-  (2, 'Ana', 'Gómez', 'ana.gomez@example.com', '98765432-1', 'secret321', 'FUNCIONARIO_ADUANAS', true)
+  (1, 'Juan', 'Pérez', 'usuario@smaa.cl', '12345678-9', 'clave123', 'VIAJERO', true),
+  (2, 'Ana', 'Gómez', 'funcionario@smaa.cl', '98765432-1', 'clave321', 'FUNCIONARIO_ADUANAS', true)
 ON DUPLICATE KEY UPDATE
   nombre = VALUES(nombre),
   apellido = VALUES(apellido),
