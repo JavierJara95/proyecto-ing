@@ -1,8 +1,8 @@
 -- Seed data for SMAA testing
--- This file is executed by Spring Boot after JPA schema initialization.
+-- This file is executed by Spring Boot after schema initialization.
 
 INSERT INTO usuarios (id, nombre, apellido, correo, documento, password, rol, activo) VALUES
-  (1, 'Juan', 'Pérez', 'viajeroo@smaa.cl', '12345678-9', 'clave123', 'VIAJERO', true),
+  (1, 'Juan', 'Pérez', 'viajero@smaa.cl', '12345678-9', 'clave123', 'VIAJERO', true),
   (2, 'Ana', 'Gómez', 'funcionario@smaa.cl', '98765432-1', 'clave321', 'FUNCIONARIO_ADUANAS', true)
 ON DUPLICATE KEY UPDATE
   nombre = VALUES(nombre),
@@ -12,8 +12,8 @@ ON DUPLICATE KEY UPDATE
   activo = VALUES(activo);
 
 INSERT INTO declaraciones_viaje (id, folio, nombre_titular, documento_titular, fecha_viaje, paso_fronterizo, sentido_cruce, medio_transporte, estado, fecha_creacion) VALUES
-  (1, 'FOLIO-001', 'Juan Pérez', '12345678-9', '2026-06-15', 'Los Libertadores', 'SALIDA', 'Automóvil', 'PENDIENTE', '2026-06-01 10:00:00'),
-  (2, 'FOLIO-002', 'Ana Gómez', '98765432-1', '2026-06-20', 'Chacalluta', 'INGRESO', 'Bus', 'BORRADOR', '2026-06-02 11:30:00')
+  (1, 'SMAA-2026-0001', 'Juan Pérez', '12345678-9', '2026-06-15', 'Los Libertadores', 'SALIDA', 'Automóvil', 'PENDIENTE', '2026-06-01 10:00:00'),
+  (2, 'SMAA-2026-0002', 'Ana Gómez', '98765432-1', '2026-06-20', 'Chacalluta', 'INGRESO', 'Bus', 'BORRADOR', '2026-06-02 11:30:00')
 ON DUPLICATE KEY UPDATE
   nombre_titular = VALUES(nombre_titular),
   documento_titular = VALUES(documento_titular),

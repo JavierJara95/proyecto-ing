@@ -1,19 +1,20 @@
 const API = 'http://localhost:8080/api';
 const $ = (id) => document.getElementById(id);
 function out(data) { $('resultado').textContent = JSON.stringify(data, null, 2); }
-function showLoginMessage(message, isError = true) {
-  const el = $('loginMessage');
-  if (!el) return;
-  el.textContent = message;
-  el.style.display = 'block';
-  el.style.backgroundColor = isError ? '#fdecea' : '#e8f5e9';
-  el.style.color = isError ? '#b71c1c' : '#2e7d32';
-  el.style.border = isError ? '1px solid #f5c6cb' : '1px solid #c8e6c9';
+function showLoginMessage(message) {
+  const popup = $('loginPopup');
+  const text = $('loginPopupText');
+  if (!popup || !text) {
+    alert(message);
+    return;
+  }
+  text.textContent = message;
+  popup.classList.add('active');
 }
 function hideLoginMessage() {
-  const el = $('loginMessage');
-  if (!el) return;
-  el.style.display = 'none';
+  const popup = $('loginPopup');
+  if (!popup) return;
+  popup.classList.remove('active');
 }
 async function request(url, method = 'GET', body = null) {
   const options = { method, headers: { 'Content-Type': 'application/json' } };
