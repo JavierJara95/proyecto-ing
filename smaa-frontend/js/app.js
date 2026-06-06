@@ -1,6 +1,58 @@
 const API = 'http://localhost:8080/api';
 const $ = (id) => document.getElementById(id);
-function out(data) { $('resultado').textContent = JSON.stringify(data, null, 2); }
+function out(data) { const target = $('resultado'); if (target) target.textContent = JSON.stringify(data, null, 2); }
+function showSearchResultModal(data) {
+  const modal = $('searchResultModal');
+  const tbody = $('searchResultTable')?.querySelector('tbody');
+  if (!modal || !tbody) {
+    alert('No se encontró el modal de resultados');
+    return;
+  }
+  if (!data || Object.keys(data).length === 0) {
+    tbody.innerHTML = '<tr><td colspan="2">No se encontraron resultados.</td></tr>';
+  } else {
+    tbody.innerHTML = Object.entries(data)
+      .map(([key, value]) => `
+        <tr>
+          <th>${key}</th>
+          <td>${value === null ? '' : value}</td>
+        </tr>`)
+      .join('');
+  }
+  modal.classList.add('active');
+}
+function hideSearchResultModal() {
+  const modal = $('searchResultModal');
+  if (modal) modal.classList.remove('active');
+}
+function showErrorModal(message) {
+  const modal = $('errorModal');
+  const messageElement = $('errorModalMessage');
+  if (!modal || !messageElement) {
+    alert(message);
+    return;
+  }
+  messageElement.textContent = message;
+  modal.classList.add('active');
+}
+function hideErrorModal() {
+  const modal = $('errorModal');
+  if (modal) modal.classList.remove('active');
+}
+function showInfoModal(message) {
+  const modal = $('infoModal');
+  const messageElement = $('infoModalMessage');
+  if (!modal || !messageElement) {
+    alert(message);
+    return;
+  }
+  messageElement.textContent = message;
+  modal.classList.add('active');
+}
+function hideInfoModal() {
+  const modal = $('infoModal');
+  if (modal) modal.classList.remove('active');
+}
 function showLoginMessage(message) {
   const popup = $('loginPopup');
   const text = $('loginPopupText');
@@ -71,9 +123,51 @@ async function crearSag(e) { e.preventDefault(); request(`${API}/sag`, 'POST', {
 async function crearMenor(e) { e.preventDefault(); request(`${API}/menores`, 'POST', { nombre: $('nombre').value, documento: $('documento').value, viajaConAmbosPadres: bool('viajaConAmbosPadres'), tieneAutorizacionNotarial: bool('tieneAutorizacionNotarial'), declaracionViaje: { id: Number($('declaracionId').value) } }); }
 async function crearMascota(e) { e.preventDefault(); request(`${API}/mascotas`, 'POST', { tipoAnimal: $('tipoAnimal').value, nombre: $('nombre').value, certificadoSanitario: bool('certificadoSanitario'), vacunaVigente: bool('vacunaVigente'), observacion: $('observacion').value, declaracionViaje: { id: Number($('declaracionId').value) } }); }
 async function verComprobante(e) { e.preventDefault(); request(`${API}/comprobantes/${$('folio').value}`); }
-async function buscarFolio(e) { e.preventDefault(); request(`${API}/fiscalizacion/folio/${$('folio').value}`); }
-async function buscarPatente(e) { e.preventDefault(); request(`${API}/fiscalizacion/patente/${$('patente').value}`); }
-async function cambiarEstado(e) { e.preventDefault(); request(`${API}/fiscalizacion/${$('declaracionId').value}/${$('accion').value}`, 'PUT'); }
+async function buscarFolio(e) {
+  e.preventDefault();
+  try {
+    const response = await fetch(`${API}/fiscalizacion/folio/${$('folio').value}`);
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.mensaje || response.statusText || 'Error en la búsqueda');
+    }
+    const data = await response.json();
+    showSearchResultModal(data);
+  } catch (error) {
+    showErrorModal(error.message);
+  }
+}
+async function buscarPatente(e) {
+  e.preventDefault();
+  try {
+    const response = await fetch(`${API}/fiscalizacion/patente/${$('patente').value}`);
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.mensaje || response.statusText || 'Error en la búsqueda');
+    }
+    const data = await response.json();
+    showSearchResultModal(data);
+  } catch (error) {
+    showErrorModal(error.message);
+  }
+}
+async function cambiarEstado(e) {
+  e.preventDefault();
+  const id = $('declaracionId').value;
+  const accion = $('accion').value;
+  try {
+    const response = await fetch(`${API}/fiscalizacion/${id}/${accion}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' } });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.mensaje || response.statusText || 'Error al actualizar el estado');
+    }
+    const data = await response.json();
+    const estado = data.estado || accion;
+    showInfoModal(`Cambio de estado a '${estado}' realizado correctamente para ID ${data.id || id}.`);
+  } catch (error) {
+    showErrorModal(error.message);
+  }
+}
 async function verAuditoria() { request(`${API}/auditoria`); }
 async function verReportes() {
 

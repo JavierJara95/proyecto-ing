@@ -51,8 +51,42 @@
           ><button class="btn">Aplicar</button>
         </form>
       </div>
-      <pre id="resultado"></pre>
     </main>
+    <div id="searchResultModal" class="modal" onclick="if(event.target===this) hideSearchResultModal()">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Resultado de búsqueda</h3>
+          <button class="modal-close" type="button" onclick="hideSearchResultModal()">×</button>
+        </div>
+        <div class="modal-body">
+          <table class="tabla-popup" id="searchResultTable">
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div id="errorModal" class="modal" onclick="if(event.target===this) hideErrorModal()">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Error</h3>
+          <button class="modal-close" type="button" onclick="hideErrorModal()">×</button>
+        </div>
+        <div class="modal-body">
+          <p id="errorModalMessage"></p>
+        </div>
+      </div>
+    </div>
+    <div id="infoModal" class="modal" onclick="if(event.target===this) hideInfoModal()">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Estado actualizado</h3>
+          <button class="modal-close" type="button" onclick="hideInfoModal()">×</button>
+        </div>
+        <div class="modal-body">
+          <p id="infoModalMessage"></p>
+        </div>
+      </div>
+    </div>
     <script src="js/app.js"></script>
   </body>
 </html>
