@@ -5,42 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="css/styles.css" />
     <title>SMAA - Login</title>
-    <style>
-      .popup-overlay {
-        display: none;
-        position: fixed;
-        inset: 0;
-        background: rgba(0,0,0,0.45);
-        align-items: center;
-        justify-content: center;
-        z-index: 1000;
-      }
-      .popup-overlay.active {
-        display: flex;
-      }
-      .popup-box {
-        background: #fff;
-        padding: 24px;
-        border-radius: 12px;
-        box-shadow: 0 16px 40px rgba(0,0,0,0.2);
-        max-width: 380px;
-        width: calc(100% - 40px);
-        text-align: center;
-      }
-      .popup-box p {
-        margin: 0 0 18px;
-        color: #b71c1c;
-        font-weight: 600;
-      }
-      .popup-close {
-        padding: 10px 18px;
-        background: #1976d2;
-        color: #fff;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-      }
-    </style>
   </head>
   <body>
     <header class="topbar">
@@ -54,7 +18,7 @@
       </nav>
     </header>
     <main class="container">
-      <h1>Inicio de sesión simulado</h1>
+      <h1>Inicio de sesión</h1>
       <form class="form" onsubmit="login(event)">
         <label
           >Correo<input
@@ -69,6 +33,7 @@
             required
             value="1234" /></label
         ><button class="btn" type="submit">Ingresar</button>
+        <a href="registro.html" class="btn" style="text-align: center; display: block; background: #4b5563; margin-top: 10px;">Registrarse</a>
       </form>
       <pre id="resultado" style="display:none;"></pre>
 

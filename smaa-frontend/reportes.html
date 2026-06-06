@@ -75,6 +75,30 @@
 
     </main>
 
+    <div id="errorModal" class="modal" onclick="if(event.target===this) hideErrorModal()">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Error</h3>
+          <button class="modal-close" type="button" onclick="hideErrorModal()">×</button>
+        </div>
+        <div class="modal-body">
+          <p id="errorModalMessage"></p>
+        </div>
+      </div>
+    </div>
+
+    <div id="infoModal" class="modal" onclick="if(event.target===this) hideInfoModal()">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Información</h3>
+          <button class="modal-close" type="button" onclick="hideInfoModal()">×</button>
+        </div>
+        <div class="modal-body">
+          <p id="infoModalMessage"></p>
+        </div>
+      </div>
+    </div>
+
     <script src="js/app.js"></script>
   </body>
 </html>

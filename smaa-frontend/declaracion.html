@@ -48,8 +48,21 @@
             value="Vehículo particular" /></label
         ><button class="btn">Crear declaración</button>
       </form>
-      <pre id="resultado"></pre>
     </main>
+    <div id="successModal" class="modal" onclick="if(event.target===this) hideSuccessModal()">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Declaración creada exitosamente</h3>
+          <button class="modal-close" type="button" onclick="hideSuccessModal()">×</button>
+        </div>
+        <div class="modal-body">
+          <p><strong>Tu folio es:</strong></p>
+          <p id="successModalFolio" style="font-size: 1.2rem; color: var(--azul); font-weight: bold; word-break: break-all;"></p>
+          <p id="successModalMessage"></p>
+          <button class="btn" onclick="hideSuccessModal()" style="width: 100%; margin-top: 15px;">Aceptar</button>
+        </div>
+      </div>
+    </div>
     <script src="js/app.js"></script>
   </body>
 </html>

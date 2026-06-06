@@ -40,8 +40,19 @@
         ><label>Observación<textarea id="observacion"></textarea></label
         ><button class="btn">Registrar SAG</button>
       </form>
-      <pre id="resultado"></pre>
     </main>
+    <div id="successModal" class="modal" onclick="if(event.target===this) hideSuccessModal()">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Declaración SAG registrada exitosamente</h3>
+          <button class="modal-close" type="button" onclick="hideSuccessModal()">×</button>
+        </div>
+        <div class="modal-body">
+          <p id="successModalMessage"></p>
+          <button class="btn" onclick="hideSuccessModal()" style="width: 100%; margin-top: 15px;">Aceptar</button>
+        </div>
+      </div>
+    </div>
     <script src="js/app.js"></script>
   </body>
 </html>

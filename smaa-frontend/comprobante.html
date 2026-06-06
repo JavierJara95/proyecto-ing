@@ -20,11 +20,33 @@
   <main class="container">
     <h1>Comprobante QR simulado</h1>
     <form class="form" onsubmit="verComprobante(event)">
-      <label>Folio<input id="folio" required value="SMAA-2026-0001" /></label><button class="btn">Buscar
-        comprobante</button>
+      <label>Folio<input id="folio" required value="SMAA-2026-0001" /></label><button class="btn">Buscar comprobante</button>
     </form>
-    <pre id="resultado"></pre>
   </main>
+  <div id="searchResultModal" class="modal" onclick="if(event.target===this) hideSearchResultModal()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Comprobante</h3>
+        <button class="modal-close" type="button" onclick="hideSearchResultModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <table class="tabla-popup" id="searchResultTable">
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div id="errorModal" class="modal" onclick="if(event.target===this) hideErrorModal()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Error</h3>
+        <button class="modal-close" type="button" onclick="hideErrorModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <p id="errorModalMessage"></p>
+      </div>
+    </div>
+  </div>
   <script src="js/app.js"></script>
 </body>
 
