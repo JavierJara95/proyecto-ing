@@ -280,17 +280,22 @@ pre {
 
 /* Login popup styles */
 .popup-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
+  display: none !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  min-height: 100vh !important;
+  width: 100vw !important;
+  background: rgba(0, 0, 0, 0.55) !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 10000 !important;
 }
 
 .popup-overlay.active {
-  display: flex;
+  display: flex !important;
 }
 
 .popup-box {

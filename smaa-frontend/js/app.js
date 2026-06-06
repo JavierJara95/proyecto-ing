@@ -109,6 +109,7 @@ function showLoginMessage(message) {
     return;
   }
   text.textContent = message;
+  popup.style.display = 'flex';
   popup.classList.add('active');
 }
 
@@ -116,6 +117,7 @@ function hideLoginMessage() {
   const popup = $('loginPopup');
   if (!popup) return;
   popup.classList.remove('active');
+  popup.style.display = 'none';
 }
 
 async function request(url, method = 'GET', body = null) {
