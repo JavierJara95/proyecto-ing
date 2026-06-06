@@ -52,6 +52,8 @@ services:
       context: ./smaa-frontend
     ports:
       - "80:80"
+    volumes:
+      - ./smaa-frontend:/usr/share/nginx/html:ro
     depends_on:
       - backend
     networks:
