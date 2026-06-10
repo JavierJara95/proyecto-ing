@@ -1,14 +1,7 @@
-// Determine API URL dynamically
-function getAPIUrl() {
-  // Check if we're on localhost
-  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-    return 'http://localhost:8080/api';
-  }
-  // For network access, use the current host's IP and port 8080
-  return `http://${window.location.hostname}:8080/api`;
-}
-
-const API = getAPIUrl();
+// API base path.
+// Docker/Nginx proxies this relative path to the backend container.
+// This keeps the frontend working from localhost and from mobile devices on the same WiFi.
+const API = '/api';
 const $ = (id) => document.getElementById(id);
 
 function out(data) { 

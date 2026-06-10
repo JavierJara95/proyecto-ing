@@ -1,246 +1,203 @@
-# SMAA Docker Setup Guide
+# Guía de ejecución Docker - SMAA
 
-This guide explains how to run the SMAA application using Docker and access it from a smartphone on your network.
+Esta guía explica cómo ejecutar el Sistema de Monitoreo y Aduana Automatizada (SMAA) con Docker y cómo acceder desde un celular conectado a la misma red WiFi.
 
-## Prerequisites
+## Cambios aplicados para compatibilidad Docker
 
-- Docker installed on your machine
-- Docker Compose installed
-- Network connection between your PC and smartphone
+- El frontend se sirve con **Nginx**.
+- El frontend usa la ruta relativa `/api`, por lo que funciona desde `localhost` y desde la IP local del computador.
+- Nginx redirige internamente `/api` hacia el contenedor `backend:8080`.
+- El backend escucha en `0.0.0.0`, necesario para funcionar correctamente dentro del contenedor.
+- MySQL tiene `healthcheck`, para que el backend espere a que la base de datos esté lista.
+- Los puertos se publican con `0.0.0.0`, permitiendo acceso desde otros dispositivos de la red local.
 
-## Running with Docker
+## Requisitos previos
 
-### 1. Start the Docker Containers
+- Docker Desktop instalado.
+- Docker Compose disponible.
+- Computador y celular conectados a la misma red WiFi.
 
-Navigate to the project root directory and run:
+## Ejecutar el proyecto
 
-```bash
-docker-compose up -d
-```
-
-This command will:
-- Start MySQL database on port 3306
-- Start phpMyAdmin on port 8081
-- Start the backend API on port 8080
-- Start the frontend on port 80
-
-Wait 10-15 seconds for all services to start properly.
-
-### 2. Verify Services Are Running
-
-Check if all containers are running:
+Desde la carpeta raíz del proyecto, ejecutar:
 
 ```bash
-docker-compose ps
+docker compose up -d --build
 ```
 
-You should see all 4 services in the "Up" state.
+Esto levantará:
 
-## Accessing from Your PC
+| Servicio | URL desde el computador | Uso |
+|---|---|---|
+| Frontend | http://localhost | Aplicación web |
+| Backend | http://localhost:8080/api | API Spring Boot |
+| phpMyAdmin | http://localhost:8081 | Administración MySQL |
+| MySQL | localhost:3306 | Base de datos |
 
-Once Docker is running:
+## Acceso desde celular en la misma red WiFi
 
-- **Frontend (Web App):** http://localhost/
-- **Backend API:** http://localhost:8080/api
-- **phpMyAdmin:** http://localhost:8081
-  - Username: `root`
-  - Password: `root`
-  - Server: `db`
+1. En el computador, abrir PowerShell o CMD.
+2. Ejecutar:
 
-## Accessing from a Smartphone on the Same Network
-
-To access the application from a smartphone, you need to use your PC's IP address on the local network.
-
-### Finding Your PC's IP Address
-
-**On Windows (PowerShell):**
 ```powershell
 ipconfig
 ```
 
-Look for "IPv4 Address" under your active network adapter (e.g., `192.168.x.x` or `10.0.x.x`).
+3. Buscar la **Dirección IPv4** del adaptador WiFi activo.
+4. En el celular, abrir el navegador y escribir:
 
-**On Linux/Mac:**
-```bash
-ifconfig
-# or
-ip addr
+```text
+http://IP_DEL_PC
 ```
 
-### Accessing from Smartphone
+Ejemplo:
 
-Once you have your PC's IP (e.g., `192.168.1.100`):
-
-- **Frontend (Web App):** http://192.168.1.100/
-- **Backend API:** http://192.168.1.100:8080/api
-- **phpMyAdmin:** http://192.168.1.100:8081
-
-**Important:** Replace `192.168.1.100` with your actual PC IP address.
-
-The frontend automatically detects the hostname and port from the request, so it will work seamlessly from any device on your network.
-
-## Database Access
-
-### Using phpMyAdmin (GUI)
-
-1. Open http://localhost:8081 (from PC) or http://YOUR_PC_IP:8081 (from smartphone)
-2. Login with:
-   - Username: `root`
-   - Password: `root`
-   - Server: `db`
-
-### Using Command Line
-
-Connect to MySQL directly:
-
-```bash
-docker exec -it proyecto-ing-db-1 mysql -u root -p
+```text
+http://192.168.1.25
 ```
 
-When prompted for password, enter: `root`
+No usar `localhost` desde el celular.
 
-## Database Configuration
+## Configuración de rutas
 
-- **Database Name:** `smaa_db`
-- **Root User:** `root`
-- **Root Password:** `root`
-- **Host (from backend):** `db` (Docker network)
-- **Host (from PC/external):** `localhost:3306`
-- **Port:** `3306`
+El archivo:
 
-The schema and initial data are created automatically when the backend starts.
-
-## Stopping the Application
-
-To stop all containers:
-
-```bash
-docker-compose down
+```text
+smaa-frontend/js/app.js
 ```
 
-To stop and remove all volumes (including database data):
+usa:
 
-```bash
-docker-compose down -v
+```js
+const API = '/api';
 ```
 
-## Troubleshooting
+El archivo:
 
-### Cannot connect from smartphone
-
-1. **Check if services are running:**
-   ```bash
-   docker-compose ps
-   ```
-
-2. **Check firewall:** Make sure Windows Firewall allows port 80, 8080, and 8081
-   - Go to Windows Defender Firewall → Allow an app through firewall
-   - Add `Docker Desktop` or allow ports 80, 8080, 8081
-
-3. **Verify network connection:** Both PC and smartphone should be on the same WiFi network
-
-4. **Check PC's IP:** Make sure you're using the correct IP address
-   ```powershell
-   ipconfig
-   ```
-
-### Database connection errors
-
-1. **Check database logs:**
-   ```bash
-   docker-compose logs db
-   ```
-
-2. **Restart the database:**
-   ```bash
-   docker-compose restart db
-   ```
-
-3. **Check if port is in use:**
-   ```powershell
-   netstat -ano | findstr :3306
-   ```
-
-### Backend API not responding
-
-1. **Check backend logs:**
-   ```bash
-   docker-compose logs backend
-   ```
-
-2. **Restart backend:**
-   ```bash
-   docker-compose restart backend
-   ```
-
-## Security Notes
-
-This configuration is suitable for **development only**. For production use:
-
-- Change default passwords (`root`)
-- Set up proper user roles and permissions
-- Use environment variables for sensitive data
-- Enable authentication and CORS properly
-- Use HTTPS instead of HTTP
-- Run behind a reverse proxy (nginx, Apache)
-
-## Additional Commands
-
-### View logs
-
-```bash
-# All services
-docker-compose logs
-
-# Specific service
-docker-compose logs backend
-docker-compose logs db
-
-# Follow logs in real-time
-docker-compose logs -f frontend
+```text
+smaa-frontend/nginx.conf
 ```
 
-### Rebuild containers
+redirige internamente:
 
-```bash
-docker-compose build
-docker-compose up -d
+```text
+/api/  →  http://backend:8080/api/
 ```
 
-### Clean up unused Docker resources
+Gracias a esto, el celular solo necesita entrar al frontend por la IP del computador. No necesita escribir `:8080` para consumir el backend.
 
-```bash
-docker system prune -a
+## Datos de la base de datos Docker
+
+```text
+Base de datos: smaa_db
+Usuario: root
+Contraseña: root
+Puerto: 3306
 ```
 
-## Testing the Application
+phpMyAdmin:
 
-### From PC
+```text
+http://localhost:8081
+```
 
-1. Open http://localhost in your browser
-2. Navigate to "Funcionario" panel
-3. Use example data:
-   - Folio: `SMAA-2026-0001`
-   - Patente: `ABCD12`
+Credenciales:
 
-### From Smartphone
+```text
+Servidor: db
+Usuario: root
+Contraseña: root
+```
 
-1. Replace `localhost` with your PC's IP address
-2. Same steps as above
-3. The application is fully responsive and designed for mobile viewing
+## Comandos útiles
 
-## Backend API Endpoints
+Ver contenedores:
 
-The backend API is available at:
+```bash
+docker compose ps
+```
 
-- **Local:** http://localhost:8080/api
-- **Network:** http://YOUR_PC_IP:8080/api
+Ver logs:
 
-Common endpoints:
-- POST `/usuarios/login` - Login
-- POST `/declaraciones` - Create travel declaration
-- GET `/fiscalizacion/folio/{folio}` - Search by folio
-- GET `/reportes/resumen` - Get report summary
-- GET `/auditoria` - Get audit log
+```bash
+docker compose logs -f
+```
 
-Refer to the backend code for complete API documentation.
+Ver logs solo del backend:
+
+```bash
+docker compose logs -f backend
+```
+
+Detener servicios:
+
+```bash
+docker compose down
+```
+
+Detener y borrar datos de MySQL:
+
+```bash
+docker compose down -v
+```
+
+Reconstruir todo:
+
+```bash
+docker compose up -d --build
+```
+
+## Solución de problemas
+
+### El celular no abre la página
+
+Revisar:
+
+1. Computador y celular están en la misma red WiFi.
+2. Se está usando la IP correcta del computador.
+3. El firewall de Windows permite conexiones al puerto 80.
+4. Docker está ejecutándose correctamente con `docker compose ps`.
+
+### El puerto 80 está ocupado
+
+Cambiar en `docker-compose.yml`:
+
+```yaml
+ports:
+  - "0.0.0.0:80:80"
+```
+
+por ejemplo a:
+
+```yaml
+ports:
+  - "0.0.0.0:8082:80"
+```
+
+Luego acceder desde el celular con:
+
+```text
+http://IP_DEL_PC:8082
+```
+
+### El backend no conecta con MySQL
+
+Ver logs:
+
+```bash
+docker compose logs -f backend
+```
+
+Revisar que el servicio `db` esté en estado saludable:
+
+```bash
+docker compose ps
+```
+
+## Documento de acciones pendientes
+
+Los datos que requieren intervención del usuario quedaron registrados en:
+
+```text
+CONFIGURACION_PENDIENTE_USUARIO.md
+```

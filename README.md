@@ -1,33 +1,43 @@
-# proyecto-ing
+# SMAA - Sistema de Monitoreo y Aduana Automatizada
 
-## Docker support
+Aplicación web académica para apoyar la digitalización de procesos aduaneros en pasos fronterizos de Chile.
 
-This repository includes a `docker-compose.yml` file to run the backend, MySQL database, and frontend together.
+## Ejecución recomendada con Docker
 
-### Run with Docker
-
-1. Install Docker and Docker Compose.
-2. From the repository root, run:
+Desde la raíz del proyecto:
 
 ```bash
-docker compose up --build
+docker compose up -d --build
 ```
 
-3. Open the frontend in your browser at:
+Abrir en el computador:
 
-- `http://localhost`
+```text
+http://localhost
+```
 
-The backend API will be available at:
+Para abrir desde un celular conectado a la misma red WiFi, obtener la IP local del computador con `ipconfig` y entrar a:
 
-- `http://localhost:8080/api`
+```text
+http://IP_DEL_PC
+```
 
-### What was added
+Ejemplo:
 
-- `smaa-backend/Dockerfile`: builds the Spring Boot backend using Maven and runs it with Java 17.
-- `smaa-backend/.dockerignore`: excludes build artifacts from the Docker context.
-- `docker-compose.yml`: starts:
-  - `db` (MySQL 8)
-  - `backend` (Spring Boot)
-  - `frontend` (Nginx serving `smaa-frontend` via a dedicated Dockerfile)
+```text
+http://192.168.1.25
+```
 
-The backend now reads database connection values from environment variables so it works both locally and inside Docker.
+## Servicios Docker
+
+| Servicio | URL |
+|---|---|
+| Frontend | http://localhost |
+| Backend API | http://localhost:8080/api |
+| phpMyAdmin | http://localhost:8081 |
+| MySQL | localhost:3306 |
+
+## Documentación incluida
+
+- `DOCKER_SETUP.md`: guía completa de ejecución Docker y acceso desde celular.
+- `CONFIGURACION_PENDIENTE_USUARIO.md`: datos y acciones que dependen del computador/red del usuario.
