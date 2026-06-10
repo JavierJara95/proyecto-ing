@@ -140,3 +140,29 @@ Backend Spring Boot interno en 127.0.0.1:8080
         ↓
 MySQL en contenedor smaa-db
 ```
+
+## 11. Si aparece error de folio o fetch desde celular
+
+Esta version corrige el error:
+
+```text
+Column 'folio' cannot be null
+```
+
+Si vienes de una version anterior, reconstruye sin cache:
+
+```bash
+docker compose down
+docker compose build --no-cache
+docker compose up -d
+```
+
+Si el celular no puede consultar datos:
+
+1. Verifica que estas entrando con `http://IP_DEL_PC`.
+2. No uses `localhost` en el celular.
+3. Confirma que el celular y el PC esten en la misma red WiFi.
+4. Borra cache del navegador del celular o usa modo incognito.
+5. Revisa que Windows Firewall permita el puerto 80.
+
+Mas detalle en `CORRECCION_FOLIO_Y_CONEXION_MOVIL.md`.

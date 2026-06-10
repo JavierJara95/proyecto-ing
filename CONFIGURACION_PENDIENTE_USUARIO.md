@@ -118,3 +118,15 @@ Despues de modificar configuraciones Docker, reconstruir con:
 docker compose down
 docker compose up -d --build
 ```
+
+## Corrección adicional: folio y prueba desde celular
+
+Se agregó el documento `CORRECCION_FOLIO_Y_CONEXION_MOVIL.md` con los cambios aplicados y las pruebas recomendadas.
+
+Acciones pendientes del usuario:
+
+1. Ejecutar `docker compose down`.
+2. Ejecutar `docker compose build --no-cache`.
+3. Ejecutar `docker compose up -d`.
+4. Entrar desde el celular usando `http://IP_DEL_PC`, no `localhost`.
+5. Si el celular mantiene el error de `fetch`, borrar caché del navegador o usar modo incógnito.

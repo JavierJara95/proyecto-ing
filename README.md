@@ -50,3 +50,19 @@ http://192.168.1.25
 - `CONFIGURACION_PENDIENTE_USUARIO.md`: configuraciones que dependen del computador o red del usuario.
 - `Dockerfile`: imagen unica frontend + backend.
 - `docker-compose.yml`: servicios `smaa-app` y `smaa-db`.
+
+## Correccion reciente
+
+Se corrigio la creacion de declaraciones para que el backend genere el `folio` antes de guardar en MySQL. Tambien se reforzo la conexion desde celular evitando cache antigua de `app.js`.
+
+Para aplicar los cambios despues de una version anterior, reconstruir sin cache:
+
+```bash
+docker compose down
+docker compose build --no-cache
+docker compose up -d
+```
+
+Ver detalles en:
+
+- `CORRECCION_FOLIO_Y_CONEXION_MOVIL.md`

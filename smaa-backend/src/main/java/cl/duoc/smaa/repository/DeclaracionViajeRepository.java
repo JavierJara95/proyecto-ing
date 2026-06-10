@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 public interface DeclaracionViajeRepository extends JpaRepository<DeclaracionViaje, Long> {
     Optional<DeclaracionViaje> findByFolio(String folio);
+    boolean existsByFolio(String folio);
     List<DeclaracionViaje> findByDocumentoTitular(String documentoTitular);
     long countByEstado(EstadoDeclaracion estado);
     long countByPasoFronterizo(String pasoFronterizo);

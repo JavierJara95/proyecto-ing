@@ -8,7 +8,9 @@ import cl.duoc.smaa.model.EstadoRevisionSag;
 import cl.duoc.smaa.repository.DeclaracionSagRepository;
 import cl.duoc.smaa.repository.DeclaracionViajeRepository;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -26,11 +28,24 @@ public class DeclaracionViajeService {
     public DeclaracionViaje crear(DeclaracionViaje declaracion) {
         declaracion.setEstado(EstadoDeclaracion.BORRADOR);
         declaracion.setFechaCreacion(LocalDateTime.now());
+
+        if (declaracion.getFolio() == null || declaracion.getFolio().isBlank()) {
+            declaracion.setFolio(generarFolioUnico());
+        }
+
         DeclaracionViaje guardada = repository.save(declaracion);
-        guardada.setFolio(String.format("SMAA-2026-%04d", guardada.getId()));
-        guardada = repository.save(guardada);
-        auditoriaService.registrar(declaracion.getDocumentoTitular(), "CREAR", "DECLARACIONES", "Declaración creada con folio " + guardada.getFolio());
+        auditoriaService.registrar(guardada.getDocumentoTitular(), "CREAR", "DECLARACIONES", "Declaración creada con folio " + guardada.getFolio());
         return guardada;
+    }
+
+    private String generarFolioUnico() {
+        String folio;
+        do {
+            String fecha = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+            int correlativo = ThreadLocalRandom.current().nextInt(1000, 10000);
+            folio = "SMAA-" + fecha + "-" + correlativo;
+        } while (repository.existsByFolio(folio));
+        return folio;
     }
 
     public List<DeclaracionViaje> listar() { return repository.findAll(); }

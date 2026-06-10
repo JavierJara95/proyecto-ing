@@ -26,6 +26,28 @@ echo "Iniciando backend Spring Boot..."
 java -jar /app/smaa-backend.jar &
 JAVA_PID=$!
 
+echo "Esperando backend Spring Boot en 127.0.0.1:${BACKEND_PORT}..."
+for intento in $(seq 1 90); do
+  if ! kill -0 "${JAVA_PID}" 2>/dev/null; then
+    echo "El backend se detuvo antes de quedar disponible." >&2
+    wait "${JAVA_PID}" || true
+    exit 1
+  fi
+
+  if nc -z 127.0.0.1 "${BACKEND_PORT}"; then
+    echo "Backend disponible."
+    break
+  fi
+
+  if [ "${intento}" -eq 90 ]; then
+    echo "El backend no quedo disponible despues de 90 intentos." >&2
+    kill "${JAVA_PID}" 2>/dev/null || true
+    exit 1
+  fi
+
+  sleep 2
+done
+
 echo "Iniciando Nginx..."
 nginx -g 'daemon off;' &
 NGINX_PID=$!
