@@ -18,7 +18,10 @@
     </nav>
   </header>
   <main class="container">
-    <h1>Comprobante QR simulado</h1>
+    <div class="page-title-row">
+        <h1>Comprobante QR simulado</h1>
+        <a class="btn secondary dashboard-return-btn" href="dashboard-viajero.html">Volver al dashboard viajero</a>
+      </div>
     <form class="form" onsubmit="verComprobante(event)">
       <label>Folio<input id="folio" required value="SMAA-2026-0001" /></label><button class="btn">Buscar comprobante</button>
     </form>
@@ -47,7 +50,7 @@
       </div>
     </div>
   </div>
-  <script src="js/app.js?v=20260610-folio-wifi"></script>
+  <script src="js/app.js?v=20260610-folio-copy-dashboard"></script>
 </body>
 
 </html>

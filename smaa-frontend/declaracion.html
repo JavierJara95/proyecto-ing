@@ -18,7 +18,10 @@
       </nav>
     </header>
     <main class="container">
-      <h1>Declaración de viaje</h1>
+      <div class="page-title-row">
+        <h1>Declaración de viaje</h1>
+        <a class="btn secondary dashboard-return-btn" href="dashboard-viajero.html">Volver al dashboard viajero</a>
+      </div>
       <form class="form" onsubmit="crearDeclaracion(event)">
         <label
           >Nombre titular<input
@@ -59,7 +62,10 @@
           <p><strong>Tu folio es:</strong></p>
           <p id="successModalFolio" style="font-size: 1.2rem; color: var(--azul); font-weight: bold; word-break: break-all;"></p>
           <p id="successModalMessage"></p>
-          <button class="btn" onclick="hideSuccessModal()" style="width: 100%; margin-top: 15px;">Aceptar</button>
+          <div class="modal-actions">
+            <button id="copyFolioButton" class="btn secondary" type="button" onclick="copyFolioFromSuccessModal()">Copiar folio</button>
+            <button class="btn" type="button" onclick="hideSuccessModal()">Aceptar</button>
+          </div>
         </div>
       </div>
     </div>
@@ -76,6 +82,6 @@
         </div>
       </div>
     </div>
-    <script src="js/app.js?v=20260610-folio-wifi"></script>
+    <script src="js/app.js?v=20260610-folio-copy-dashboard"></script>
   </body>
 </html>

@@ -150,6 +150,7 @@ function showSuccessModal(message, folio = null) {
   const modal = $('successModal');
   const messageElement = $('successModalMessage');
   const folioElement = $('successModalFolio');
+  const copyButton = $('copyFolioButton');
   
   if (!modal || !messageElement) {
     alert(message);
@@ -161,11 +162,51 @@ function showSuccessModal(message, folio = null) {
   if (folioElement && folio) {
     folioElement.textContent = folio;
     folioElement.style.display = 'block';
-  } else if (folioElement) {
-    folioElement.style.display = 'none';
+    if (copyButton) {
+      copyButton.style.display = 'inline-block';
+      copyButton.textContent = 'Copiar folio';
+    }
+  } else {
+    if (folioElement) folioElement.style.display = 'none';
+    if (copyButton) copyButton.style.display = 'none';
   }
   
   modal.classList.add('active');
+}
+
+async function copyFolioFromSuccessModal() {
+  const folioElement = $('successModalFolio');
+  const copyButton = $('copyFolioButton');
+  const folio = folioElement?.textContent?.trim();
+
+  if (!folio) {
+    showErrorModal('No hay folio disponible para copiar.');
+    return;
+  }
+
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(folio);
+    } else {
+      const tempInput = document.createElement('textarea');
+      tempInput.value = folio;
+      tempInput.setAttribute('readonly', '');
+      tempInput.style.position = 'fixed';
+      tempInput.style.opacity = '0';
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempInput);
+    }
+
+    if (copyButton) {
+      copyButton.textContent = 'Folio copiado';
+      setTimeout(() => { copyButton.textContent = 'Copiar folio'; }, 1800);
+    }
+  } catch (error) {
+    console.error(error);
+    showErrorModal('No se pudo copiar el folio. Selecciónalo manualmente e intenta copiarlo.');
+  }
 }
 
 function hideSuccessModal() {

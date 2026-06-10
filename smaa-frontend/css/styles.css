@@ -392,3 +392,44 @@ pre {
   vertical-align: top;
   word-break: break-word;
 }
+
+
+.page-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.page-title-row h1 {
+  margin-bottom: 0;
+}
+
+.dashboard-return-btn {
+  white-space: nowrap;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 15px;
+}
+
+.modal-actions .btn {
+  flex: 1 1 180px;
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  .page-title-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .dashboard-return-btn {
+    width: 100%;
+    text-align: center;
+  }
+}
