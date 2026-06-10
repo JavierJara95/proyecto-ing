@@ -39,11 +39,17 @@
             required
             placeholder="Repetir contraseña" /></label
         ><label
-          >Nombre completo<input
+          >Nombre<input
             id="nombre"
             type="text"
             required
-            placeholder="Juan Pérez" /></label
+            placeholder="Juan" /></label
+        ><label
+          >Apellido<input
+            id="apellido"
+            type="text"
+            required
+            placeholder="Pérez" /></label
         ><label
           >Documento de identidad<input
             id="documento"
@@ -92,6 +98,7 @@
         const password = document.getElementById('password').value;
         const passwordConfirm = document.getElementById('passwordConfirm').value;
         const nombre = document.getElementById('nombre').value;
+        const apellido = document.getElementById('apellido').value;
         const documento = document.getElementById('documento').value;
         const rol = document.getElementById('rol').value;
 
@@ -115,15 +122,16 @@
               correo: correo,
               password: password,
               nombre: nombre,
+              apellido: apellido,
               documento: documento,
               rol: rol
             })
           });
 
-          const data = await response.json();
+          const data = await readResponseBody(response);
 
           if (!response.ok) {
-            throw new Error(data?.mensaje || data?.message || 'Error al registrar usuario');
+            throw new Error(getErrorMessage(data, 'Error al registrar usuario'));
           }
 
           showInfoModal(`¡Bienvenido ${nombre}! Tu cuenta ha sido creada exitosamente. Ahora puedes iniciar sesión.`);

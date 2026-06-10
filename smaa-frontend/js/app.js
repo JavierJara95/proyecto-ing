@@ -16,6 +16,71 @@ function out(data) {
   if (target) target.textContent = JSON.stringify(data, null, 2); 
 }
 
+function escapeHTML(value) {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+function formatLabel(key) {
+  return String(key)
+    .replace(/([A-Z])/g, ' $1')
+    .replace(/_/g, ' ')
+    .replace(/^./, c => c.toUpperCase());
+}
+
+function flattenObject(obj, prefix = '') {
+  const rows = {};
+  Object.entries(obj || {}).forEach(([key, value]) => {
+    const path = prefix ? `${prefix}.${key}` : key;
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+      Object.assign(rows, flattenObject(value, path));
+    } else if (Array.isArray(value)) {
+      rows[path] = value.map(item => {
+        if (item && typeof item === 'object') return JSON.stringify(flattenObject(item));
+        return item;
+      }).join(', ');
+    } else {
+      rows[path] = value;
+    }
+  });
+  return rows;
+}
+
+function renderKeyValueTable(data) {
+  const rows = flattenObject(data);
+  if (!Object.keys(rows).length) {
+    return '<tr><td colspan="2">No se encontraron resultados.</td></tr>';
+  }
+  return Object.entries(rows)
+    .map(([key, value]) => `
+      <tr>
+        <th>${escapeHTML(formatLabel(key))}</th>
+        <td>${escapeHTML(value === null || value === undefined ? '' : value)}</td>
+      </tr>`)
+    .join('');
+}
+
+function renderArrayTable(data) {
+  if (!Array.isArray(data) || data.length === 0) {
+    return '<tr><td colspan="2">No se encontraron resultados.</td></tr>';
+  }
+
+  const flattened = data.map(item => flattenObject(item));
+  const columns = [...new Set(flattened.flatMap(item => Object.keys(item)))];
+
+  return `
+    <tr>${columns.map(col => `<th>${escapeHTML(formatLabel(col))}</th>`).join('')}</tr>
+    ${flattened.map(item => `
+      <tr>
+        ${columns.map(col => `<td>${escapeHTML(item[col] === null || item[col] === undefined ? '' : item[col])}</td>`).join('')}
+      </tr>`).join('')}
+  `;
+}
+
 function showSearchResultModal(data) {
   const modal = $('searchResultModal');
   const tbody = $('searchResultTable')?.querySelector('tbody');
@@ -23,23 +88,37 @@ function showSearchResultModal(data) {
     alert('No se encontró el modal de resultados');
     return;
   }
-  if (!data || Object.keys(data).length === 0) {
-    tbody.innerHTML = '<tr><td colspan="2">No se encontraron resultados.</td></tr>';
-  } else {
-    tbody.innerHTML = Object.entries(data)
-      .map(([key, value]) => `
-        <tr>
-          <th>${key}</th>
-          <td>${value === null ? '' : value}</td>
-        </tr>`)
-      .join('');
-  }
+
+  tbody.innerHTML = Array.isArray(data) ? renderArrayTable(data) : renderKeyValueTable(data);
   modal.classList.add('active');
 }
 
 function hideSearchResultModal() {
   const modal = $('searchResultModal');
   if (modal) modal.classList.remove('active');
+}
+
+async function readResponseBody(response) {
+  const text = await response.text();
+  if (!text) return {};
+  try {
+    return JSON.parse(text);
+  } catch (error) {
+    return { message: text };
+  }
+}
+
+function getErrorMessage(data, fallback = 'Error en la operación') {
+  if (!data) return fallback;
+  if (data.mensaje) return data.mensaje;
+  if (data.message) return data.message;
+  if (data.error) return data.error;
+  if (data.validations && typeof data.validations === 'object') {
+    return Object.entries(data.validations)
+      .map(([field, message]) => `${formatLabel(field)}: ${message}`)
+      .join('\n');
+  }
+  return fallback;
 }
 
 function showErrorModal(message) {
@@ -120,20 +199,20 @@ function hideLoginMessage() {
   popup.style.display = 'none';
 }
 
-async function request(url, method = 'GET', body = null) {
+async function request(url, method = 'GET', body = null, options = {}) {
   try {
-    const options = { method, headers: { 'Content-Type': 'application/json' } };
-    if (body) options.body = JSON.stringify(body);
-    const res = await fetch(url, options);
-    const data = await res.json();
+    const fetchOptions = { method, headers: { 'Content-Type': 'application/json' } };
+    if (body) fetchOptions.body = JSON.stringify(body);
+    const res = await fetch(url, fetchOptions);
+    const data = await readResponseBody(res);
     
     if (!res.ok) {
-      showErrorModal(data?.mensaje || data?.message || 'Error en la operación');
-      return data;
+      showErrorModal(getErrorMessage(data));
+      return null;
     }
     
     out(data);
-    showInfoModal('Operación realizada correctamente');
+    if (options.showInfo !== false) showInfoModal(options.successMessage || 'Operación realizada correctamente');
     return data;
   } catch (error) {
     console.error(error);
@@ -171,10 +250,10 @@ async function login(e) {
       body: JSON.stringify(payload),
     });
 
-    const data = await response.json();
+    const data = await readResponseBody(response);
 
     if (!response.ok || !data.ok) {
-      showLoginMessage(data?.mensaje || 'Usuario o contraseña incorrecto');
+      showLoginMessage(getErrorMessage(data, 'Usuario o contraseña incorrecto'));
       return;
     }
 
@@ -207,10 +286,10 @@ async function crearDeclaracion(e) {
       })
     });
 
-    const data = await response.json();
+    const data = await readResponseBody(response);
     
     if (!response.ok) {
-      showErrorModal(data?.mensaje || data?.message || 'Error al crear declaración');
+      showErrorModal(getErrorMessage(data, 'Error al crear declaración'));
       return;
     }
     
@@ -240,10 +319,10 @@ async function crearVehiculo(e) {
       })
     });
 
-    const data = await response.json();
+    const data = await readResponseBody(response);
     
     if (!response.ok) {
-      showErrorModal(data?.mensaje || data?.message || 'Error al registrar vehículo');
+      showErrorModal(getErrorMessage(data, 'Error al registrar vehículo'));
       return;
     }
     
@@ -269,10 +348,10 @@ async function crearSag(e) {
       })
     });
 
-    const data = await response.json();
+    const data = await readResponseBody(response);
     
     if (!response.ok) {
-      showErrorModal(data?.mensaje || data?.message || 'Error al registrar declaración SAG');
+      showErrorModal(getErrorMessage(data, 'Error al registrar declaración SAG'));
       return;
     }
     
@@ -298,10 +377,10 @@ async function crearMenor(e) {
       })
     });
 
-    const data = await response.json();
+    const data = await readResponseBody(response);
     
     if (!response.ok) {
-      showErrorModal(data?.mensaje || data?.message || 'Error al registrar menor');
+      showErrorModal(getErrorMessage(data, 'Error al registrar menor'));
       return;
     }
     
@@ -328,10 +407,10 @@ async function crearMascota(e) {
       })
     });
 
-    const data = await response.json();
+    const data = await readResponseBody(response);
     
     if (!response.ok) {
-      showErrorModal(data?.mensaje || data?.message || 'Error al registrar mascota');
+      showErrorModal(getErrorMessage(data, 'Error al registrar mascota'));
       return;
     }
     
@@ -347,10 +426,10 @@ async function verComprobante(e) {
   try {
     const response = await fetch(`${API}/comprobantes/${$('folio').value}`);
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.mensaje || response.statusText || 'Error en la búsqueda');
+      const errorData = await readResponseBody(response);
+      throw new Error(getErrorMessage(errorData, response.statusText || 'Error en la búsqueda'));
     }
-    const data = await response.json();
+    const data = await readResponseBody(response);
     showSearchResultModal(data);
   } catch (error) {
     showErrorModal(error.message);
@@ -362,10 +441,10 @@ async function buscarFolio(e) {
   try {
     const response = await fetch(`${API}/fiscalizacion/folio/${$('folio').value}`);
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.mensaje || response.statusText || 'Error en la búsqueda');
+      const errorData = await readResponseBody(response);
+      throw new Error(getErrorMessage(errorData, response.statusText || 'Error en la búsqueda'));
     }
-    const data = await response.json();
+    const data = await readResponseBody(response);
     showSearchResultModal(data);
   } catch (error) {
     showErrorModal(error.message);
@@ -377,10 +456,10 @@ async function buscarPatente(e) {
   try {
     const response = await fetch(`${API}/fiscalizacion/patente/${$('patente').value}`);
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.mensaje || response.statusText || 'Error en la búsqueda');
+      const errorData = await readResponseBody(response);
+      throw new Error(getErrorMessage(errorData, response.statusText || 'Error en la búsqueda'));
     }
-    const data = await response.json();
+    const data = await readResponseBody(response);
     showSearchResultModal(data);
   } catch (error) {
     showErrorModal(error.message);
@@ -397,10 +476,10 @@ async function cambiarEstado(e) {
       headers: { 'Content-Type': 'application/json' } 
     });
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.mensaje || response.statusText || 'Error al actualizar el estado');
+      const errorData = await readResponseBody(response);
+      throw new Error(getErrorMessage(errorData, response.statusText || 'Error al actualizar el estado'));
     }
-    const data = await response.json();
+    const data = await readResponseBody(response);
     const estado = data.estado || accion;
     showInfoModal(`Cambio de estado a '${estado}' realizado correctamente para ID ${data.id || id}.`);
   } catch (error) {
@@ -416,7 +495,7 @@ async function verReportes() {
       throw new Error("Error obteniendo resumen");
     }
 
-    const data = await response.json();
+    const data = await readResponseBody(response);
 
     document.getElementById("contenedorAuditoria").style.display = "none";
     document.getElementById("contenedorResumen").style.display = "block";
@@ -425,26 +504,13 @@ async function verReportes() {
 
     tbody.innerHTML = "";
 
-    Object.entries(data).forEach(([clave, valor]) => {
-      if (clave === 'cantidadPorPasoFronterizo' && valor && typeof valor === 'object') {
-        const detalles = Object.entries(valor)
-          .map(([paso, cantidad]) => `${paso}: ${cantidad}`)
-          .join('\n');
-
-        tbody.innerHTML += `
-          <tr>
-            <td>${clave}</td>
-            <td style="white-space: pre-line">${detalles}</td>
-          </tr>
-        `;
-      } else {
-        tbody.innerHTML += `
-          <tr>
-            <td>${clave}</td>
-            <td>${valor}</td>
-          </tr>
-        `;
-      }
+    Object.entries(flattenObject(data)).forEach(([clave, valor]) => {
+      tbody.innerHTML += `
+        <tr>
+          <td>${escapeHTML(formatLabel(clave))}</td>
+          <td>${escapeHTML(valor)}</td>
+        </tr>
+      `;
     });
 
     document.getElementById("resultado").innerHTML = "";
@@ -463,7 +529,7 @@ async function verAuditoria() {
       throw new Error("Error obteniendo auditoría");
     }
 
-    const data = await response.json();
+    const data = await readResponseBody(response);
 
     document.getElementById("contenedorResumen").style.display = "none";
     document.getElementById("contenedorAuditoria").style.display = "block";
@@ -475,10 +541,12 @@ async function verAuditoria() {
     data.forEach(registro => {
       tbody.innerHTML += `
         <tr>
-          <td>${registro.id}</td>
-          <td>${registro.usuario}</td>
-          <td>${registro.accion}</td>
-          <td>${registro.fecha}</td>
+          <td>${escapeHTML(registro.id)}</td>
+          <td>${escapeHTML(registro.usuario)}</td>
+          <td>${escapeHTML(registro.accion)}</td>
+          <td>${escapeHTML(registro.modulo)}</td>
+          <td>${escapeHTML(registro.detalle)}</td>
+          <td>${escapeHTML(registro.fechaHora)}</td>
         </tr>
       `;
     });

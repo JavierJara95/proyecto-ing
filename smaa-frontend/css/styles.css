@@ -379,3 +379,16 @@ pre {
     overflow-y: auto;
   }
 }
+
+/* Mejoras de lectura para resultados extensos en ventanas emergentes */
+.modal-body {
+  overflow-x: auto;
+}
+
+.tabla-popup th,
+.tabla-popup td,
+.tabla-reportes th,
+.tabla-reportes td {
+  vertical-align: top;
+  word-break: break-word;
+}
