@@ -1,101 +1,105 @@
-# Guía de ejecución Docker - SMAA
+# Ejecucion Docker - SMAA con imagen unica
 
-Esta guía explica cómo ejecutar el Sistema de Monitoreo y Aduana Automatizada (SMAA) con Docker y cómo acceder desde un celular conectado a la misma red WiFi.
+Esta version del proyecto usa una sola imagen Docker propia llamada `smaa-app`, que contiene:
 
-## Cambios aplicados para compatibilidad Docker
+- Frontend HTML/CSS/JS servido por Nginx.
+- Backend Spring Boot ejecutandose dentro del mismo contenedor.
+- Proxy interno Nginx para redirigir `/api` al backend.
 
-- El frontend se sirve con **Nginx**.
-- El frontend usa la ruta relativa `/api`, por lo que funciona desde `localhost` y desde la IP local del computador.
-- Nginx redirige internamente `/api` hacia el contenedor `backend:8080`.
-- El backend escucha en `0.0.0.0`, necesario para funcionar correctamente dentro del contenedor.
-- MySQL tiene `healthcheck`, para que el backend espere a que la base de datos esté lista.
-- Los puertos se publican con `0.0.0.0`, permitiendo acceso desde otros dispositivos de la red local.
+La base de datos MySQL se mantiene en un contenedor separado para conservar datos y facilitar administracion.
 
-## Requisitos previos
+## 1. Requisitos previos
 
-- Docker Desktop instalado.
-- Docker Compose disponible.
-- Computador y celular conectados a la misma red WiFi.
+- Docker Desktop instalado y abierto.
+- Puerto 80 disponible en el computador.
+- Computador y celular conectados a la misma red WiFi si se desea probar desde el telefono.
 
-## Ejecutar el proyecto
+## 2. Levantar el sistema
 
-Desde la carpeta raíz del proyecto, ejecutar:
+Desde la carpeta principal del proyecto ejecutar:
 
 ```bash
 docker compose up -d --build
 ```
 
-Esto levantará:
+Esto creara principalmente:
 
-| Servicio | URL desde el computador | Uso |
-|---|---|---|
-| Frontend | http://localhost | Aplicación web |
-| Backend | http://localhost:8080/api | API Spring Boot |
-| phpMyAdmin | http://localhost:8081 | Administración MySQL |
-| MySQL | localhost:3306 | Base de datos |
+```text
+smaa-app    -> frontend + backend
+smaa-db     -> base de datos MySQL
+```
 
-## Acceso desde celular en la misma red WiFi
+## 3. Abrir en el computador
 
-1. En el computador, abrir PowerShell o CMD.
-2. Ejecutar:
+```text
+http://localhost
+```
+
+## 4. Abrir desde un celular en la misma red WiFi
+
+Primero obtener la IP del computador.
+
+En Windows:
 
 ```powershell
 ipconfig
 ```
 
-3. Buscar la **Dirección IPv4** del adaptador WiFi activo.
-4. En el celular, abrir el navegador y escribir:
+Buscar la linea similar a:
 
 ```text
-http://IP_DEL_PC
+Direccion IPv4 . . . . . . . . . . : 192.168.1.25
 ```
 
-Ejemplo:
+Luego abrir en el celular:
 
 ```text
 http://192.168.1.25
 ```
 
-No usar `localhost` desde el celular.
+No usar `localhost` en el celular, porque `localhost` apunta al propio celular y no al computador.
 
-## Configuración de rutas
+## 5. Revisar contenedores activos
 
-El archivo:
-
-```text
-smaa-frontend/js/app.js
+```bash
+docker compose ps
 ```
 
-usa:
+## 6. Ver logs
 
-```js
-const API = '/api';
+Logs de la aplicacion completa:
+
+```bash
+docker logs -f smaa-app
 ```
 
-El archivo:
+Logs de MySQL:
 
-```text
-smaa-frontend/nginx.conf
+```bash
+docker logs -f smaa-db
 ```
 
-redirige internamente:
+## 7. Apagar el sistema
 
-```text
-/api/  →  http://backend:8080/api/
+```bash
+docker compose down
 ```
 
-Gracias a esto, el celular solo necesita entrar al frontend por la IP del computador. No necesita escribir `:8080` para consumir el backend.
+Para borrar tambien los datos de MySQL:
 
-## Datos de la base de datos Docker
-
-```text
-Base de datos: smaa_db
-Usuario: root
-Contraseña: root
-Puerto: 3306
+```bash
+docker compose down -v
 ```
 
-phpMyAdmin:
+## 8. phpMyAdmin opcional
+
+phpMyAdmin queda configurado como herramienta opcional. Para levantarlo:
+
+```bash
+docker compose --profile tools up -d phpmyadmin
+```
+
+Luego abrir:
 
 ```text
 http://localhost:8081
@@ -106,98 +110,33 @@ Credenciales:
 ```text
 Servidor: db
 Usuario: root
-Contraseña: root
+Password: root
 ```
 
-## Comandos útiles
-
-Ver contenedores:
-
-```bash
-docker compose ps
-```
-
-Ver logs:
-
-```bash
-docker compose logs -f
-```
-
-Ver logs solo del backend:
-
-```bash
-docker compose logs -f backend
-```
-
-Detener servicios:
-
-```bash
-docker compose down
-```
-
-Detener y borrar datos de MySQL:
-
-```bash
-docker compose down -v
-```
-
-Reconstruir todo:
-
-```bash
-docker compose up -d --build
-```
-
-## Solución de problemas
-
-### El celular no abre la página
-
-Revisar:
-
-1. Computador y celular están en la misma red WiFi.
-2. Se está usando la IP correcta del computador.
-3. El firewall de Windows permite conexiones al puerto 80.
-4. Docker está ejecutándose correctamente con `docker compose ps`.
-
-### El puerto 80 está ocupado
-
-Cambiar en `docker-compose.yml`:
-
-```yaml
-ports:
-  - "0.0.0.0:80:80"
-```
-
-por ejemplo a:
-
-```yaml
-ports:
-  - "0.0.0.0:8082:80"
-```
-
-Luego acceder desde el celular con:
+## 9. Estructura Docker actual
 
 ```text
-http://IP_DEL_PC:8082
+Dockerfile                         -> construye la imagen unica smaa-app
+nginx-single.conf                  -> configura Nginx para frontend y proxy /api
+docker/start-single-container.sh   -> inicia backend y Nginx dentro del mismo contenedor
+docker-compose.yml                 -> levanta smaa-app y MySQL
+.dockerignore                      -> evita copiar archivos innecesarios a la imagen
 ```
 
-### El backend no conecta con MySQL
-
-Ver logs:
-
-```bash
-docker compose logs -f backend
-```
-
-Revisar que el servicio `db` esté en estado saludable:
-
-```bash
-docker compose ps
-```
-
-## Documento de acciones pendientes
-
-Los datos que requieren intervención del usuario quedaron registrados en:
+## 10. Flujo interno
 
 ```text
-CONFIGURACION_PENDIENTE_USUARIO.md
+Navegador PC / Celular
+        ↓
+http://IP_DEL_PC
+        ↓
+Nginx dentro de smaa-app
+        ↓
+Frontend HTML
+        ↓
+/api/*
+        ↓
+Backend Spring Boot interno en 127.0.0.1:8080
+        ↓
+MySQL en contenedor smaa-db
 ```

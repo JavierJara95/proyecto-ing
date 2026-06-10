@@ -1,22 +1,38 @@
-# SMAA - Sistema de Monitoreo y Aduana Automatizada
+# Sistema SMAA - Aduanas Chile
 
-Aplicación web académica para apoyar la digitalización de procesos aduaneros en pasos fronterizos de Chile.
+Aplicacion academica para agilizar procesos aduaneros en pasos fronterizos de Chile.
 
-## Ejecución recomendada con Docker
+## Ejecucion recomendada con Docker
 
-Desde la raíz del proyecto:
+Esta version usa una sola imagen propia para frontend y backend:
+
+```text
+smaa-app = frontend HTML/CSS/JS + backend Spring Boot + Nginx
+```
+
+La base de datos MySQL se ejecuta en un contenedor separado.
+
+### Levantar el proyecto
 
 ```bash
 docker compose up -d --build
 ```
 
-Abrir en el computador:
+### Abrir en el PC
 
 ```text
 http://localhost
 ```
 
-Para abrir desde un celular conectado a la misma red WiFi, obtener la IP local del computador con `ipconfig` y entrar a:
+### Abrir desde celular en la misma red WiFi
+
+Buscar la IP del computador con:
+
+```powershell
+ipconfig
+```
+
+Luego abrir en el celular:
 
 ```text
 http://IP_DEL_PC
@@ -28,16 +44,9 @@ Ejemplo:
 http://192.168.1.25
 ```
 
-## Servicios Docker
+## Documentacion importante
 
-| Servicio | URL |
-|---|---|
-| Frontend | http://localhost |
-| Backend API | http://localhost:8080/api |
-| phpMyAdmin | http://localhost:8081 |
-| MySQL | localhost:3306 |
-
-## Documentación incluida
-
-- `DOCKER_SETUP.md`: guía completa de ejecución Docker y acceso desde celular.
-- `CONFIGURACION_PENDIENTE_USUARIO.md`: datos y acciones que dependen del computador/red del usuario.
+- `DOCKER_SETUP.md`: guia de ejecucion Docker.
+- `CONFIGURACION_PENDIENTE_USUARIO.md`: configuraciones que dependen del computador o red del usuario.
+- `Dockerfile`: imagen unica frontend + backend.
+- `docker-compose.yml`: servicios `smaa-app` y `smaa-db`.
