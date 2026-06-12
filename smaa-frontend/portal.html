@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/styles.css?v=20260612-mobile-final" />
+    <title>SMAA - Portal de acceso</title>
+  </head>
+  <body class="traveler-page">
+    <header class="traveler-topbar">
+      <a class="traveler-logo" href="index.html">
+        <img src="ref/logo.png" alt="Servicio Nacional de Aduanas" />
+      </a>
+      <nav class="role-nav" data-menu="portal"></nav>
+    </header>
+
+    <main class="traveler-container">
+      <section class="traveler-hero">
+        <div class="traveler-hero-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" role="img">
+            <path d="M12 2 4 5v6c0 5.1 3.4 9.8 8 11 4.6-1.2 8-5.9 8-11V5l-8-3Zm0 2.2L18 6v5c0 4-2.5 7.8-6 8.9C8.5 18.8 6 15 6 11V6l6-1.8Zm-1 11.3 6-6-1.4-1.4L11 12.7 8.9 10.6 7.5 12l3.5 3.5Z"/>
+          </svg>
+        </div>
+        <div class="traveler-hero-copy">
+          <h1>Portal de acceso</h1>
+          <p id="portalDescripcion">Seleccione el módulo disponible para su perfil de usuario.</p>
+        </div>
+        <button class="btn traveler-secondary-btn" type="button" onclick="logoutSmaa()">Cerrar sesión</button>
+      </section>
+
+      <div class="traveler-grid portal-grid">
+        <a class="traveler-module-card traveler-module-primary" data-portal-role="VIAJERO" href="dashboard-viajero.html">
+          <div class="traveler-module-top">
+            <span class="traveler-module-number">01</span>
+            <span class="traveler-module-icon" aria-hidden="true"></span>
+          </div>
+          <strong>Ingresar como viajero</strong>
+          <span class="traveler-module-line"></span>
+          <small>Crear declaración, registrar vehículo, menores, SAG, mascotas y consultar comprobantes.</small>
+          <span class="traveler-arrow" aria-hidden="true">›</span>
+        </a>
+
+        <a class="traveler-module-card" data-portal-role="FUNCIONARIO_ADUANAS" href="panel-funcionario.html">
+          <div class="traveler-module-top">
+            <span class="traveler-module-number">02</span>
+            <span class="traveler-module-icon" aria-hidden="true"></span>
+          </div>
+          <strong>Ingresar como funcionario</strong>
+          <span class="traveler-module-line"></span>
+          <small>Buscar expedientes, revisar declaraciones, cambiar estados y acceder a reportes.</small>
+          <span class="traveler-arrow" aria-hidden="true">›</span>
+        </a>
+      </div>
+    </main>
+
+    <div id="infoModal" class="modal" onclick="if(event.target===this) hideInfoModal()">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Información</h3>
+          <button class="modal-close" type="button" onclick="hideInfoModal()">×</button>
+        </div>
+        <div class="modal-body"><p id="infoModalMessage"></p></div>
+      </div>
+    </div>
+
+    <div id="errorModal" class="modal" onclick="if(event.target===this) hideErrorModal()">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Error</h3>
+          <button class="modal-close" type="button" onclick="hideErrorModal()">×</button>
+        </div>
+        <div class="modal-body"><p id="errorModalMessage"></p></div>
+      </div>
+    </div>
+    <script src="js/app.js?v=20260612-mobile-final"></script>
+  </body>
+</html>

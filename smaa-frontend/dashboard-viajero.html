@@ -3,14 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="css/styles.css?v=20260612-mobile-final" />
     <title>SMAA - Portal de Trámites para Viajeros</title>
   </head>
-  <body class="traveler-page">
+  <body class="traveler-page" data-required-role="VIAJERO">
     <header class="traveler-topbar">
       <a class="traveler-logo" href="index.html">
-        <img src="ref\logo.png" alt="Servicio Nacional de Aduanas" />
+        <img src="ref/logo.png" alt="Servicio Nacional de Aduanas" />
       </a>
+      <nav class="role-nav" data-menu="viajero"></nav>
     </header>
 
     <main class="traveler-container">
@@ -144,6 +145,6 @@
         <div class="modal-body"><p id="errorModalMessage"></p></div>
       </div>
     </div>
-    <script src="js/app.js?v=20260611-dashboard-folio"></script>
+    <script src="js/app.js?v=20260612-mobile-final"></script>
   </body>
 </html>

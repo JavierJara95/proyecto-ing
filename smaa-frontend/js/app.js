@@ -4,6 +4,98 @@
 const API = '/api';
 const $ = (id) => document.getElementById(id);
 
+function getSmaaRole() {
+  return localStorage.getItem('smaa_rol') || '';
+}
+
+function setSmaaRole(role) {
+  if (role) localStorage.setItem('smaa_rol', role);
+}
+
+function logoutSmaa() {
+  localStorage.removeItem('smaa_rol');
+  localStorage.removeItem('smaa_folio_declaracion');
+  window.location.href = 'login.html';
+}
+
+function getMenuItems(menuType, role) {
+  if (menuType === 'viajero' || role === 'VIAJERO') {
+    return [
+      ['Inicio', 'index.html'],
+      ['Viajero', 'dashboard-viajero.html'],
+      ['Cerrar sesión', '#logout']
+    ];
+  }
+  if (menuType === 'funcionario' || role === 'FUNCIONARIO_ADUANAS') {
+    return [
+      ['Inicio', 'index.html'],
+      ['Funcionario', 'panel-funcionario.html'],
+      ['Reportes', 'reportes.html'],
+      ['Cerrar sesión', '#logout']
+    ];
+  }
+  return [
+    ['Inicio', 'index.html'],
+    ['Login', 'login.html'],
+    ['Registro', 'registro.html']
+  ];
+}
+
+function initRoleNavigation() {
+  const role = getSmaaRole();
+  document.querySelectorAll('.role-nav').forEach(nav => {
+    const menuType = nav.dataset.menu || 'publico';
+    const items = getMenuItems(menuType, role);
+    nav.innerHTML = items.map(([label, href]) => {
+      if (href === '#logout') return `<button type="button" onclick="logoutSmaa()">${label}</button>`;
+      const current = window.location.pathname.split('/').pop() || 'index.html';
+      const active = current === href ? ' class="active"' : '';
+      return `<a${active} href="${href}">${label}</a>`;
+    }).join('');
+  });
+}
+
+function initPortalByRole() {
+  const cards = document.querySelectorAll('[data-portal-role]');
+  if (!cards.length) return;
+
+  const role = getSmaaRole();
+  if (!role) {
+    cards.forEach(card => card.hidden = true);
+    const description = $('portalDescripcion');
+    if (description) description.textContent = 'Debe iniciar sesión para ver su portal de acceso.';
+    showInfoModal('Debe iniciar sesión antes de acceder al portal.');
+    setTimeout(() => { window.location.href = 'login.html'; }, 1300);
+    return;
+  }
+
+  cards.forEach(card => {
+    card.hidden = card.dataset.portalRole !== role;
+  });
+
+  const description = $('portalDescripcion');
+  if (description) {
+    description.textContent = role === 'VIAJERO'
+      ? 'Su cuenta tiene perfil viajero. Solo se muestran funcionalidades de viajero.'
+      : 'Su cuenta tiene perfil funcionario. Solo se muestran funcionalidades de funcionario.';
+  }
+}
+
+function enforceRequiredRole() {
+  const requiredRole = document.body?.dataset?.requiredRole;
+  if (!requiredRole) return;
+
+  const role = getSmaaRole();
+  if (!role) {
+    window.location.href = 'login.html';
+    return;
+  }
+  if (role !== requiredRole) {
+    window.location.href = 'portal.html';
+  }
+}
+
+
 function out(data) { 
   const target = $('resultado'); 
   if (target) target.textContent = JSON.stringify(data, null, 2); 
@@ -361,6 +453,9 @@ async function validarFolioDashboard(e) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  initRoleNavigation();
+  enforceRequiredRole();
+  initPortalByRole();
   ['fechaViaje', 'fechaSalida'].forEach(id => { if ($(id)) $(id).value = todayPlus(7); });
   if ($('fechaRetorno')) $('fechaRetorno').value = todayPlus(20);
   initFolioInputsAndDashboard();
@@ -389,10 +484,12 @@ async function login(e) {
       return;
     }
 
+    setSmaaRole(data.rol);
+
     if (data.rol === 'VIAJERO') {
-      window.location.href = 'dashboard-viajero.html';
+      window.location.href = 'portal.html';
     } else if (data.rol === 'FUNCIONARIO_ADUANAS') {
-      window.location.href = 'panel-funcionario.html';
+      window.location.href = 'portal.html';
     } else {
       showLoginMessage('Rol no reconocido para redirección');
     }

@@ -866,3 +866,668 @@ pre {
   }
 }
 
+
+/* Navegación por rol */
+.traveler-topbar {
+  justify-content: space-between;
+  gap: 24px;
+}
+.role-nav {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-weight: 800;
+  color: var(--gov-blue, #003b79);
+}
+.role-nav a,
+.role-nav button {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  padding: 8px 10px;
+  border-radius: 6px;
+}
+.role-nav a:hover,
+.role-nav button:hover,
+.role-nav .active {
+  background: var(--gov-blue-soft, #e9f2fd);
+}
+.traveler-secondary-btn {
+  background: #4b5563;
+}
+.portal-grid [hidden] {
+  display: none !important;
+}
+.page-access-message {
+  background: #fff;
+  border: 1px solid #e3e9f2;
+  border-left: 5px solid var(--gov-blue, #003b79);
+  border-radius: 6px;
+  padding: 18px;
+  box-shadow: var(--gov-shadow, 0 8px 20px rgba(0, 35, 80, 0.11));
+}
+@media (max-width: 760px) {
+  .traveler-topbar {
+    align-items: flex-start;
+    padding: 16px 24px;
+  }
+  .role-nav {
+    width: 100%;
+  }
+}
+
+/* =========================================================
+   Ajustes responsive generales para smartphone
+   Mantiene el formato institucional existente y corrige
+   desbordes en menús, formularios, tablas, botones y modales.
+   ========================================================= */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+}
+
+.traveler-topbar,
+.topbar {
+  width: 100%;
+}
+
+.traveler-container,
+.container {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.form {
+  width: 100%;
+}
+
+.form.inline {
+  width: 100%;
+  gap: 12px;
+}
+
+.form.inline > input,
+.form.inline > select,
+.form.inline > textarea,
+.form.inline > label {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.form.inline > button,
+.form.inline > .btn {
+  flex: 0 0 auto;
+}
+
+.btn,
+button,
+input,
+select,
+textarea {
+  max-width: 100%;
+}
+
+/* Tablas con scroll horizontal controlado en móviles */
+.tabla-reportes,
+.tabla-popup {
+  min-width: 100%;
+}
+
+#contenedorResumen,
+#contenedorAuditoria,
+.modal-body {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+pre,
+#resultado,
+#successModalFolio,
+.folio-summary {
+  max-width: 100%;
+  overflow-x: auto;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+/* Botoneras y acciones */
+.action-row,
+.report-actions,
+.modal-actions,
+[style*="margin-bottom: 20px"] {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 900px) {
+  .traveler-topbar {
+    padding: 16px 24px;
+    gap: 16px;
+  }
+
+  .role-nav {
+    justify-content: flex-start;
+    row-gap: 8px;
+  }
+
+  .traveler-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .traveler-topbar,
+  .topbar {
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    padding: 14px 14px;
+    text-align: center;
+  }
+
+  .traveler-logo,
+  .brand {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .traveler-logo img {
+    width: min(220px, 88vw);
+  }
+
+  .role-nav,
+  nav {
+    width: 100%;
+    justify-content: center;
+    gap: 6px;
+    font-size: 0.92rem;
+  }
+
+  .role-nav a,
+  .role-nav button,
+  nav a {
+    padding: 9px 10px;
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .traveler-container,
+  .container {
+    margin: 16px auto 42px;
+    padding: 0 12px;
+  }
+
+  .traveler-hero {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding: 20px 16px;
+    text-align: left;
+  }
+
+  .traveler-hero-icon {
+    width: 56px;
+    height: 56px;
+  }
+
+  .traveler-hero h1,
+  h1 {
+    font-size: clamp(1.35rem, 7vw, 1.75rem);
+    line-height: 1.2;
+    word-break: normal;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+  }
+
+  .traveler-hero .traveler-primary-btn,
+  .traveler-primary-btn,
+  .btn {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .traveler-folio-card,
+  .card,
+  .form {
+    padding: 18px 14px;
+    border-radius: 8px;
+  }
+
+  .traveler-section-head {
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .traveler-section-icon {
+    width: 42px;
+    height: 42px;
+  }
+
+  .traveler-folio-form,
+  .grid,
+  .traveler-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .traveler-module-card {
+    min-height: auto;
+    padding: 18px 46px 18px 18px;
+  }
+
+  .traveler-arrow {
+    right: 18px;
+    bottom: 20px;
+  }
+
+  .form.inline {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .form.inline > input,
+  .form.inline > select,
+  .form.inline > textarea,
+  .form.inline > label,
+  .form.inline > button,
+  .form.inline > .btn {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+
+  input,
+  select,
+  textarea {
+    min-height: 46px;
+    font-size: 16px;
+  }
+
+  .modal {
+    padding: 10px;
+    align-items: flex-start;
+    padding-top: 7vh;
+  }
+
+  .modal-content,
+  .popup-box {
+    width: 100%;
+    max-width: 100%;
+    max-height: 86vh;
+    overflow-y: auto;
+    border-radius: 10px;
+  }
+
+  .modal-header,
+  .modal-body {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .tabla-reportes,
+  .tabla-popup {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .tabla-popup th,
+  .tabla-popup td,
+  .tabla-reportes th,
+  .tabla-reportes td {
+    padding: 10px 8px;
+    font-size: 0.9rem;
+  }
+
+  [style*="margin-bottom: 20px"] .btn,
+  .report-actions .btn,
+  .modal-actions .btn {
+    flex: 1 1 100%;
+  }
+}
+
+@media (max-width: 380px) {
+  .role-nav,
+  nav {
+    font-size: 0.86rem;
+  }
+
+  .role-nav a,
+  .role-nav button,
+  nav a {
+    padding: 8px 7px;
+  }
+
+  .traveler-container,
+  .container {
+    padding: 0 10px;
+  }
+
+  .traveler-module-card,
+  .card,
+  .form,
+  .traveler-folio-card,
+  .traveler-hero {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}
+
+
+/* =========================================================
+   FIX MÓVIL FINAL 20260612
+   Reglas con mayor prioridad para que el diseño se vea bien
+   en smartphones reales y evitar que el navegador use medidas
+   de escritorio o contenidos desbordados.
+   ========================================================= */
+html, body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden !important;
+}
+
+.traveler-page * {
+  min-width: 0;
+}
+
+.traveler-topbar {
+  box-sizing: border-box;
+}
+
+.role-nav a,
+.role-nav button {
+  text-decoration: none;
+  border: 1px solid transparent;
+}
+
+.role-nav .active {
+  border-color: #c6d1df;
+}
+
+.traveler-hero,
+.traveler-folio-card,
+.traveler-module-card,
+.card,
+.form,
+.modal-content,
+.popup-box {
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+.traveler-grid,
+.grid {
+  width: 100%;
+}
+
+.traveler-module-card {
+  overflow-wrap: anywhere;
+}
+
+/* Tablas: se transforman en bloque con scroll sin romper el ancho del móvil */
+.table-responsive,
+.report-table-wrap,
+#contenedorResumen,
+#contenedorAuditoria,
+.modal-body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+.tabla-reportes,
+.tabla-popup {
+  border-collapse: collapse;
+}
+
+@media screen and (max-width: 768px) {
+  .traveler-topbar,
+  .topbar {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    padding: 12px !important;
+    gap: 10px !important;
+  }
+
+  .traveler-logo,
+  .brand {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  .traveler-logo img {
+    width: min(210px, 86vw) !important;
+    height: auto !important;
+  }
+
+  .role-nav,
+  nav {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+    font-size: 0.9rem !important;
+    line-height: 1.2 !important;
+  }
+
+  .role-nav a,
+  .role-nav button,
+  nav a,
+  nav button {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 38px !important;
+    padding: 8px 9px !important;
+    border-radius: 6px !important;
+    white-space: nowrap !important;
+  }
+
+  .traveler-container,
+  .container {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 14px auto 36px !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  .traveler-hero,
+  .hero {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    padding: 18px 14px !important;
+    gap: 12px !important;
+    border-radius: 8px !important;
+  }
+
+  .traveler-hero-icon {
+    width: 52px !important;
+    height: 52px !important;
+  }
+
+  .traveler-hero h1,
+  h1 {
+    font-size: clamp(1.3rem, 6vw, 1.7rem) !important;
+    line-height: 1.18 !important;
+    margin-bottom: 10px !important;
+  }
+
+  .traveler-hero p,
+  .muted,
+  p,
+  small {
+    max-width: 100% !important;
+  }
+
+  .traveler-grid,
+  .grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .traveler-module-card,
+  .card {
+    width: 100% !important;
+    min-height: auto !important;
+    padding: 16px 44px 16px 16px !important;
+    border-radius: 8px !important;
+  }
+
+  .traveler-arrow {
+    right: 16px !important;
+    bottom: 16px !important;
+    font-size: 1.8rem !important;
+  }
+
+  .traveler-folio-card,
+  .form {
+    width: 100% !important;
+    padding: 16px 12px !important;
+    border-radius: 8px !important;
+  }
+
+  .traveler-section-head {
+    display: flex !important;
+    gap: 10px !important;
+  }
+
+  .traveler-folio-form,
+  .form.inline {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+    align-items: stretch !important;
+    width: 100% !important;
+  }
+
+  label,
+  input,
+  select,
+  textarea,
+  button,
+  .btn {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  input,
+  select,
+  textarea {
+    min-height: 46px !important;
+    font-size: 16px !important;
+  }
+
+  .page-title-row {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+  }
+
+  .modal {
+    align-items: flex-start !important;
+    padding: 10px !important;
+    padding-top: 6vh !important;
+  }
+
+  .modal-content,
+  .popup-box {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 86vh !important;
+    overflow-y: auto !important;
+  }
+
+  .modal-header,
+  .modal-body {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  .tabla-reportes,
+  .tabla-popup {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+  }
+
+  .tabla-reportes th,
+  .tabla-reportes td,
+  .tabla-popup th,
+  .tabla-popup td {
+    font-size: 0.88rem !important;
+    padding: 9px 7px !important;
+  }
+
+  pre,
+  #resultado,
+  #successModalFolio,
+  .folio-summary,
+  .traveler-folio-summary {
+    white-space: pre-wrap !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+  }
+}
+
+@media screen and (max-width: 420px) {
+  .traveler-container,
+  .container {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+
+  .role-nav,
+  nav {
+    font-size: 0.84rem !important;
+  }
+
+  .role-nav a,
+  .role-nav button,
+  nav a,
+  nav button {
+    padding-left: 7px !important;
+    padding-right: 7px !important;
+  }
+
+  .traveler-module-card,
+  .card,
+  .form,
+  .traveler-folio-card,
+  .traveler-hero {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+}
