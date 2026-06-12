@@ -433,3 +433,436 @@ pre {
     text-align: center;
   }
 }
+
+/* Dashboard viajero con flujo por folio */
+.dashboard-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  background: white;
+  border-radius: 22px;
+  padding: 30px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
+  margin-bottom: 20px;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: var(--azul2);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.78rem;
+}
+
+.muted {
+  color: #4b5563;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.folio-panel {
+  display: grid;
+  gap: 16px;
+  border-top-color: var(--rojo);
+}
+
+.folio-panel h2 {
+  color: var(--azul);
+  margin: 0 0 8px;
+}
+
+.folio-form {
+  box-shadow: none;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.folio-form label {
+  flex: 1 1 360px;
+}
+
+.folio-summary {
+  display: none;
+  background: #eef6ff;
+  border-left: 4px solid var(--azul);
+  padding: 14px;
+  border-radius: 10px;
+  line-height: 1.5;
+}
+
+.folio-summary.active {
+  display: block;
+}
+
+.dashboard-grid .module-card {
+  display: grid;
+  gap: 8px;
+  min-height: 145px;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.dashboard-grid .module-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.1);
+}
+
+.module-card span {
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  background: #eef6ff;
+  color: var(--azul2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+}
+
+.module-card strong {
+  color: var(--azul);
+  font-size: 1.05rem;
+}
+
+.module-card small {
+  color: #4b5563;
+  line-height: 1.45;
+}
+
+.module-card.primary {
+  border-top-color: #16a34a;
+}
+
+@media (max-width: 760px) {
+  .dashboard-hero {
+    align-items: stretch;
+    flex-direction: column;
+    padding: 22px;
+  }
+}
+
+
+
+/* Portal del viajero - estética institucional */
+.traveler-page {
+  --gov-blue: #003b79;
+  --gov-blue-2: #0054a6;
+  --gov-blue-soft: #e9f2fd;
+  --gov-text: #1f2937;
+  --gov-border: #d8e0ea;
+  --gov-shadow: 0 8px 20px rgba(0, 35, 80, 0.11);
+  background: #f5f8fc;
+  color: var(--gov-text);
+}
+
+.traveler-topbar {
+  min-height: 92px;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  padding: 18px 70px;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+}
+
+.traveler-logo {
+  display: inline-flex;
+  align-items: center;
+}
+
+.traveler-logo img {
+  width: 250px;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.traveler-container {
+  width: min(100%, 1280px);
+  margin: 28px auto 70px;
+  padding: 0 24px;
+}
+
+.traveler-hero,
+.traveler-folio-card,
+.traveler-module-card {
+  background: #ffffff;
+  border: 1px solid #e3e9f2;
+  box-shadow: var(--gov-shadow);
+}
+
+.traveler-hero {
+  display: grid;
+  grid-template-columns: 80px 1fr auto;
+  align-items: center;
+  gap: 26px;
+  padding: 30px 44px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+.traveler-hero-icon,
+.traveler-section-icon,
+.traveler-module-number,
+.traveler-module-icon {
+  background: var(--gov-blue-soft);
+  color: var(--gov-blue);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
+.traveler-hero-icon {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+}
+
+.traveler-hero-icon svg,
+.traveler-section-icon svg {
+  width: 34px;
+  height: 34px;
+  fill: currentColor;
+}
+
+.traveler-hero h1 {
+  margin: 0 0 12px;
+  color: var(--gov-blue);
+  font-size: clamp(1.5rem, 2vw, 2rem);
+  line-height: 1.2;
+}
+
+.traveler-hero p,
+.traveler-section-head p,
+.traveler-module-card small {
+  color: #3f4b5d;
+  line-height: 1.55;
+}
+
+.traveler-hero p {
+  max-width: 680px;
+  margin: 0;
+}
+
+.traveler-primary-btn {
+  background: var(--gov-blue);
+  border-radius: 6px;
+  min-height: 48px;
+  padding: 13px 22px;
+  box-shadow: 0 5px 12px rgba(0, 59, 121, 0.18);
+  white-space: nowrap;
+}
+
+.traveler-primary-btn:hover {
+  background: #002f61;
+}
+
+.btn-icon {
+  margin-right: 8px;
+  font-weight: 800;
+}
+
+.traveler-folio-card {
+  border-left: 5px solid var(--gov-blue-2);
+  border-radius: 4px;
+  padding: 30px 38px;
+  margin-bottom: 18px;
+}
+
+.traveler-section-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 22px;
+  margin-bottom: 24px;
+}
+
+.traveler-section-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+}
+
+.traveler-section-icon svg {
+  width: 27px;
+  height: 27px;
+}
+
+.traveler-section-head h2 {
+  margin: 0 0 8px;
+  color: var(--gov-blue);
+  font-size: 1.45rem;
+}
+
+.traveler-section-head p {
+  margin: 0;
+}
+
+.traveler-folio-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: 22px;
+}
+
+.traveler-folio-form label {
+  color: var(--gov-blue);
+  font-weight: 800;
+}
+
+.traveler-folio-form input {
+  border: 1px solid #c6d1df;
+  border-radius: 6px;
+  min-height: 48px;
+  padding: 0 16px;
+  color: #1f2937;
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.traveler-folio-form input:focus {
+  outline: 3px solid rgba(0, 84, 166, 0.16);
+  border-color: var(--gov-blue-2);
+}
+
+.traveler-folio-summary {
+  margin-top: 18px;
+  border-left-color: var(--gov-blue-2);
+  background: #eef6ff;
+}
+
+.traveler-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(190px, 1fr));
+  gap: 16px;
+}
+
+.traveler-module-card {
+  position: relative;
+  min-height: 178px;
+  border-radius: 6px;
+  padding: 20px 50px 18px 22px;
+  color: var(--gov-blue);
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+
+.traveler-module-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px rgba(0, 35, 80, 0.16);
+  border-color: #b6c7dc;
+}
+
+.traveler-module-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 2px;
+}
+
+.traveler-module-number,
+.traveler-module-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  font-weight: 800;
+}
+
+.traveler-module-icon {
+  font-size: 1.25rem;
+}
+
+.traveler-module-card strong {
+  color: var(--gov-blue);
+  font-size: 1.05rem;
+}
+
+.traveler-module-line {
+  width: 38px;
+  height: 3px;
+  background: var(--gov-blue-2);
+  display: block;
+  border-radius: 999px;
+}
+
+.traveler-module-card small {
+  font-size: 0.92rem;
+}
+
+.traveler-arrow {
+  position: absolute;
+  right: 22px;
+  bottom: 24px;
+  color: var(--gov-blue);
+  font-size: 2.2rem;
+  line-height: 1;
+  font-weight: 300;
+}
+
+.traveler-module-primary {
+  border-top: 0;
+}
+
+@media (max-width: 1050px) {
+  .traveler-grid {
+    grid-template-columns: repeat(2, minmax(220px, 1fr));
+  }
+
+  .traveler-hero {
+    grid-template-columns: 72px 1fr;
+  }
+
+  .traveler-hero .traveler-primary-btn {
+    grid-column: 2;
+    justify-self: start;
+  }
+}
+
+@media (max-width: 700px) {
+  .traveler-topbar {
+    padding: 16px 22px;
+    min-height: 78px;
+  }
+
+  .traveler-logo img {
+    width: 210px;
+  }
+
+  .traveler-container {
+    margin-top: 18px;
+    padding: 0 14px;
+  }
+
+  .traveler-hero {
+    grid-template-columns: 1fr;
+    padding: 24px;
+    gap: 18px;
+  }
+
+  .traveler-hero .traveler-primary-btn {
+    grid-column: auto;
+    width: 100%;
+    text-align: center;
+  }
+
+  .traveler-folio-card {
+    padding: 24px 18px;
+  }
+
+  .traveler-section-head {
+    gap: 14px;
+  }
+
+  .traveler-folio-form,
+  .traveler-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .traveler-folio-form .btn {
+    width: 100%;
+  }
+}
+

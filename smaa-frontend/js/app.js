@@ -263,9 +263,107 @@ function todayPlus(days) {
   return d.toISOString().slice(0, 10); 
 }
 
+function normalizeFolio(folio) {
+  return String(folio || '').trim().toUpperCase();
+}
+
+function getSavedFolio() {
+  return normalizeFolio(localStorage.getItem('smaa_folio_declaracion'));
+}
+
+function saveFolio(folio) {
+  const value = normalizeFolio(folio);
+  if (value) localStorage.setItem('smaa_folio_declaracion', value);
+  return value;
+}
+
+function getFolioFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  return normalizeFolio(params.get('folio'));
+}
+
+function getCurrentFolio() {
+  const input = $('folioDeclaracion');
+  return normalizeFolio(input?.value || getFolioFromUrl() || getSavedFolio());
+}
+
+async function resolverDeclaracionPorFolio(folio) {
+  const folioNormalizado = normalizeFolio(folio);
+  if (!folioNormalizado) {
+    showErrorModal('Debes ingresar el folio de declaración para continuar. Primero crea una declaración y copia su folio.');
+    return null;
+  }
+
+  try {
+    const response = await fetch(`${API}/declaraciones/folio/${encodeURIComponent(folioNormalizado)}`);
+    const data = await readResponseBody(response);
+
+    if (!response.ok) {
+      showErrorModal(getErrorMessage(data, 'No se encontró una declaración con ese folio. Revisa que esté escrito correctamente.'));
+      return null;
+    }
+
+    saveFolio(data.folio || folioNormalizado);
+    return data;
+  } catch (error) {
+    console.error(error);
+    showErrorModal(error.message || 'Error de conexión al validar el folio');
+    return null;
+  }
+}
+
+function initFolioInputsAndDashboard() {
+  const folioInicial = getFolioFromUrl() || getSavedFolio();
+  const folioInput = $('folioDeclaracion');
+  if (folioInput && folioInicial && !folioInput.value) folioInput.value = folioInicial;
+
+  const dashboardFolio = $('dashboardFolio');
+  if (dashboardFolio && folioInicial && !dashboardFolio.value) dashboardFolio.value = folioInicial;
+
+  const links = document.querySelectorAll('[data-requiere-folio="true"]');
+  const updateLinks = () => {
+    const folio = normalizeFolio(dashboardFolio?.value || folioInput?.value || getSavedFolio());
+    links.forEach(link => {
+      const target = link.getAttribute('data-target');
+      if (!target) return;
+      link.href = folio ? `${target}?folio=${encodeURIComponent(folio)}` : target;
+    });
+  };
+
+  if (dashboardFolio) {
+    dashboardFolio.addEventListener('input', () => {
+      saveFolio(dashboardFolio.value);
+      updateLinks();
+    });
+  }
+  if (folioInput) {
+    folioInput.addEventListener('input', () => saveFolio(folioInput.value));
+  }
+  updateLinks();
+}
+
+async function validarFolioDashboard(e) {
+  e.preventDefault();
+  const declaracion = await resolverDeclaracionPorFolio($('dashboardFolio').value);
+  if (!declaracion) return;
+
+  const resumen = $('dashboardFolioResumen');
+  if (resumen) {
+    resumen.innerHTML = `
+      <strong>Folio activo:</strong> ${escapeHTML(declaracion.folio)}<br>
+      <span>Titular: ${escapeHTML(declaracion.nombreTitular || 'Sin nombre')} · Documento: ${escapeHTML(declaracion.documentoTitular || 'Sin documento')} · Estado: ${escapeHTML(declaracion.estado || 'Sin estado')}</span>
+    `;
+    resumen.classList.add('active');
+  }
+
+  showInfoModal('Folio validado correctamente. Ahora puedes registrar vehículo, menores, SAG o mascotas asociados a esta declaración.');
+  initFolioInputsAndDashboard();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   ['fechaViaje', 'fechaSalida'].forEach(id => { if ($(id)) $(id).value = todayPlus(7); });
   if ($('fechaRetorno')) $('fechaRetorno').value = todayPlus(20);
+  initFolioInputsAndDashboard();
 });
 
 async function login(e) {
@@ -327,6 +425,7 @@ async function crearDeclaracion(e) {
       return;
     }
     
+    saveFolio(data.folio || data.id);
     showSuccessModal(`Declaración creada para ${data.nombreTitular || 'el titular'}`, data.folio || data.id);
   } catch (error) {
     console.error(error);
@@ -336,6 +435,8 @@ async function crearDeclaracion(e) {
 
 async function crearVehiculo(e) { 
   e.preventDefault();
+  const declaracion = await resolverDeclaracionPorFolio(getCurrentFolio());
+  if (!declaracion) return;
   try {
     const response = await fetch(`${API}/vehiculos`, {
       method: 'POST',
@@ -349,7 +450,7 @@ async function crearVehiculo(e) {
         conductorAutorizado: $('conductorAutorizado').value,
         fechaSalida: $('fechaSalida').value,
         fechaRetorno: $('fechaRetorno').value,
-        declaracionViaje: { id: Number($('declaracionId').value) }
+        declaracionViaje: { id: declaracion.id }
       })
     });
 
@@ -369,6 +470,8 @@ async function crearVehiculo(e) {
 
 async function crearSag(e) { 
   e.preventDefault();
+  const declaracion = await resolverDeclaracionPorFolio(getCurrentFolio());
+  if (!declaracion) return;
   try {
     const response = await fetch(`${API}/sag`, {
       method: 'POST',
@@ -378,7 +481,7 @@ async function crearSag(e) {
         tipoProducto: $('tipoProducto').value,
         productoRestringido: bool('productoRestringido'),
         observacion: $('observacion').value,
-        declaracionViaje: { id: Number($('declaracionId').value) }
+        declaracionViaje: { id: declaracion.id }
       })
     });
 
@@ -398,6 +501,8 @@ async function crearSag(e) {
 
 async function crearMenor(e) { 
   e.preventDefault();
+  const declaracion = await resolverDeclaracionPorFolio(getCurrentFolio());
+  if (!declaracion) return;
   try {
     const response = await fetch(`${API}/menores`, {
       method: 'POST',
@@ -407,7 +512,7 @@ async function crearMenor(e) {
         documento: $('documento').value,
         viajaConAmbosPadres: bool('viajaConAmbosPadres'),
         tieneAutorizacionNotarial: bool('tieneAutorizacionNotarial'),
-        declaracionViaje: { id: Number($('declaracionId').value) }
+        declaracionViaje: { id: declaracion.id }
       })
     });
 
@@ -427,6 +532,8 @@ async function crearMenor(e) {
 
 async function crearMascota(e) { 
   e.preventDefault();
+  const declaracion = await resolverDeclaracionPorFolio(getCurrentFolio());
+  if (!declaracion) return;
   try {
     const response = await fetch(`${API}/mascotas`, {
       method: 'POST',
@@ -437,7 +544,7 @@ async function crearMascota(e) {
         certificadoSanitario: bool('certificadoSanitario'),
         vacunaVigente: bool('vacunaVigente'),
         observacion: $('observacion').value,
-        declaracionViaje: { id: Number($('declaracionId').value) }
+        declaracionViaje: { id: declaracion.id }
       })
     });
 
