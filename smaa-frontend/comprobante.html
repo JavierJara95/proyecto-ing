@@ -2,6 +2,7 @@
 <html lang="es">
 
 <head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="css/styles.css" />
@@ -19,11 +20,12 @@
   </header>
   <main class="container">
     <div class="page-title-row">
-        <h1>Comprobante QR simulado</h1>
-        <a class="btn secondary dashboard-return-btn" href="dashboard-viajero.html">Volver al dashboard viajero</a>
-      </div>
+      <h1>Comprobante QR simulado</h1>
+      <a class="btn secondary dashboard-return-btn" href="dashboard-viajero.html">Volver al dashboard viajero</a>
+    </div>
     <form class="form" onsubmit="verComprobante(event)">
-      <label>Folio<input id="folio" required value="SMAA-2026-0001" /></label><button class="btn">Buscar comprobante</button>
+      <label>Folio<input id="folio" required value="SMAA-2026-0001" /></label><button class="btn">Buscar
+        comprobante</button>
     </form>
   </main>
   <div id="searchResultModal" class="modal" onclick="if(event.target===this) hideSearchResultModal()">
@@ -33,6 +35,7 @@
         <button class="modal-close" type="button" onclick="hideSearchResultModal()">×</button>
       </div>
       <div class="modal-body">
+        <div id="qr-comprobante" style="margin-bottom: 15px; display: flex; justify-content: center;"></div>
         <table class="tabla-popup" id="searchResultTable">
           <tbody></tbody>
         </table>

@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="css/styles.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <title>SMAA - Declaración</title>
   </head>
   <body>
@@ -61,6 +62,7 @@
         <div class="modal-body">
           <p><strong>Tu folio es:</strong></p>
           <p id="successModalFolio" style="font-size: 1.2rem; color: var(--azul); font-weight: bold; word-break: break-all;"></p>
+          <div id="contenedor-qr" style="margin-top: 15px; display: flex; justify-content: center;"></div>
           <p id="successModalMessage"></p>
           <div class="modal-actions">
             <button id="copyFolioButton" class="btn secondary" type="button" onclick="copyFolioFromSuccessModal()">Copiar folio</button>

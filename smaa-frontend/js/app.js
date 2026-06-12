@@ -4,9 +4,9 @@
 const API = '/api';
 const $ = (id) => document.getElementById(id);
 
-function out(data) { 
-  const target = $('resultado'); 
-  if (target) target.textContent = JSON.stringify(data, null, 2); 
+function out(data) {
+  const target = $('resultado');
+  if (target) target.textContent = JSON.stringify(data, null, 2);
 }
 
 function escapeHTML(value) {
@@ -81,8 +81,38 @@ function showSearchResultModal(data) {
     alert('No se encontró el modal de resultados');
     return;
   }
-
+  // Esto dibuja la tabla
   tbody.innerHTML = Array.isArray(data) ? renderArrayTable(data) : renderKeyValueTable(data);
+
+  //DIBUJA EL QR
+  const contenedorQR = $('qr-comprobante');
+  if (contenedorQR) {
+    contenedorQR.innerHTML = ""; // Limpiamos cualquier QR anterior
+
+    // Extraemos el folio de la respuesta de la base de datos
+    let folioEncontrado = null;
+    if (!Array.isArray(data) && data.folio) {
+      folioEncontrado = data.folio;
+    } else if (Array.isArray(data) && data.length > 0 && data[0].folio) {
+      folioEncontrado = data[0].folio;
+    }
+
+    // Si encontramos un folio, dibujamos el QR
+    if (folioEncontrado) {
+      const baseUrl = window.location.origin;
+      // La URL a la que irá el funcionario al escanear:
+      const urlEscaneo = `${baseUrl}/panel-funcionario.html?buscarFolio=${folioEncontrado}`;
+
+      new QRCode(contenedorQR, {
+        text: urlEscaneo,
+        width: 150,
+        height: 150,
+        colorDark: "#003366",
+        colorLight: "#ffffff"
+      });
+    }
+  }
+
   modal.classList.add('active');
 }
 
@@ -151,14 +181,14 @@ function showSuccessModal(message, folio = null) {
   const messageElement = $('successModalMessage');
   const folioElement = $('successModalFolio');
   const copyButton = $('copyFolioButton');
-  
+
   if (!modal || !messageElement) {
     alert(message);
     return;
   }
-  
+
   messageElement.textContent = message;
-  
+
   if (folioElement && folio) {
     folioElement.textContent = folio;
     folioElement.style.display = 'block';
@@ -166,12 +196,45 @@ function showSuccessModal(message, folio = null) {
       copyButton.style.display = 'inline-block';
       copyButton.textContent = 'Copiar folio';
     }
+
+    // AQUÍ INYECTAMOS LA CREACIÓN DEL QR
+    generarQR(folio);
+
   } else {
     if (folioElement) folioElement.style.display = 'none';
     if (copyButton) copyButton.style.display = 'none';
+
+    // Si no hay folio, limpiamos cualquier QR anterior
+    const contenedor = $('contenedor-qr');
+    if (contenedor) contenedor.innerHTML = "";
   }
-  
+
   modal.classList.add('active');
+}
+
+// DIBUJAR EL QR
+function generarQR(folio) {
+  const contenedor = $('contenedor-qr');
+  if (!contenedor) return; // Si no encuentra el div en el HTML, no hace nada
+
+  // 1. Limpiamos por si había un QR de una declaración anterior
+  contenedor.innerHTML = "";
+
+  // 2. Armamos la URL dinámica. 
+  // window.location.origin pondrá "http://localhost" o "http://192.168.1.X" automáticamente
+  const baseUrl = window.location.origin;
+
+  // 3. Creamos la ruta a la que irá el funcionario al escanear
+  const urlEscaneo = `${baseUrl}/panel-funcionario.html?buscarFolio=${folio}`;
+
+  // 4. Dibujamos el QR
+  new QRCode(contenedor, {
+    text: urlEscaneo,
+    width: 150,
+    height: 150,
+    colorDark: "#003366",
+    colorLight: "#ffffff"
+  });
 }
 
 async function copyFolioFromSuccessModal() {
@@ -239,12 +302,12 @@ async function request(url, method = 'GET', body = null, options = {}) {
     if (body) fetchOptions.body = JSON.stringify(body);
     const res = await fetch(url, fetchOptions);
     const data = await readResponseBody(res);
-    
+
     if (!res.ok) {
       showErrorModal(getErrorMessage(data));
       return null;
     }
-    
+
     out(data);
     if (options.showInfo !== false) showInfoModal(options.successMessage || 'Operación realizada correctamente');
     return data;
@@ -257,10 +320,10 @@ async function request(url, method = 'GET', body = null, options = {}) {
 
 function bool(id) { return $(id).value === 'true'; }
 
-function todayPlus(days) { 
-  const d = new Date(); 
-  d.setDate(d.getDate() + days); 
-  return d.toISOString().slice(0, 10); 
+function todayPlus(days) {
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  return d.toISOString().slice(0, 10);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -304,7 +367,7 @@ async function login(e) {
   }
 }
 
-async function crearDeclaracion(e) { 
+async function crearDeclaracion(e) {
   e.preventDefault();
   try {
     const response = await fetch(`${API}/declaraciones`, {
@@ -321,12 +384,12 @@ async function crearDeclaracion(e) {
     });
 
     const data = await readResponseBody(response);
-    
+
     if (!response.ok) {
       showErrorModal(getErrorMessage(data, 'Error al crear declaración'));
       return;
     }
-    
+
     showSuccessModal(`Declaración creada para ${data.nombreTitular || 'el titular'}`, data.folio || data.id);
   } catch (error) {
     console.error(error);
@@ -334,7 +397,7 @@ async function crearDeclaracion(e) {
   }
 }
 
-async function crearVehiculo(e) { 
+async function crearVehiculo(e) {
   e.preventDefault();
   try {
     const response = await fetch(`${API}/vehiculos`, {
@@ -354,12 +417,12 @@ async function crearVehiculo(e) {
     });
 
     const data = await readResponseBody(response);
-    
+
     if (!response.ok) {
       showErrorModal(getErrorMessage(data, 'Error al registrar vehículo'));
       return;
     }
-    
+
     showSuccessModal(`Vehículo ${data.patente || data.marca} registrado correctamente`);
   } catch (error) {
     console.error(error);
@@ -367,7 +430,7 @@ async function crearVehiculo(e) {
   }
 }
 
-async function crearSag(e) { 
+async function crearSag(e) {
   e.preventDefault();
   try {
     const response = await fetch(`${API}/sag`, {
@@ -383,12 +446,12 @@ async function crearSag(e) {
     });
 
     const data = await readResponseBody(response);
-    
+
     if (!response.ok) {
       showErrorModal(getErrorMessage(data, 'Error al registrar declaración SAG'));
       return;
     }
-    
+
     showSuccessModal('Declaración SAG registrada correctamente');
   } catch (error) {
     console.error(error);
@@ -396,7 +459,7 @@ async function crearSag(e) {
   }
 }
 
-async function crearMenor(e) { 
+async function crearMenor(e) {
   e.preventDefault();
   try {
     const response = await fetch(`${API}/menores`, {
@@ -412,12 +475,12 @@ async function crearMenor(e) {
     });
 
     const data = await readResponseBody(response);
-    
+
     if (!response.ok) {
       showErrorModal(getErrorMessage(data, 'Error al registrar menor'));
       return;
     }
-    
+
     showSuccessModal(`Menor ${data.nombre || 'de edad'} registrado correctamente`);
   } catch (error) {
     console.error(error);
@@ -425,7 +488,7 @@ async function crearMenor(e) {
   }
 }
 
-async function crearMascota(e) { 
+async function crearMascota(e) {
   e.preventDefault();
   try {
     const response = await fetch(`${API}/mascotas`, {
@@ -442,12 +505,12 @@ async function crearMascota(e) {
     });
 
     const data = await readResponseBody(response);
-    
+
     if (!response.ok) {
       showErrorModal(getErrorMessage(data, 'Error al registrar mascota'));
       return;
     }
-    
+
     showSuccessModal(`Mascota ${data.nombre || data.tipoAnimal} registrada correctamente`);
   } catch (error) {
     console.error(error);
@@ -455,7 +518,7 @@ async function crearMascota(e) {
   }
 }
 
-async function verComprobante(e) { 
+async function verComprobante(e) {
   e.preventDefault();
   try {
     const response = await fetch(`${API}/comprobantes/${$('folio').value}`);
@@ -505,9 +568,9 @@ async function cambiarEstado(e) {
   const id = $('declaracionId').value;
   const accion = $('accion').value;
   try {
-    const response = await fetch(`${API}/fiscalizacion/${id}/${accion}`, { 
-      method: 'PUT', 
-      headers: { 'Content-Type': 'application/json' } 
+    const response = await fetch(`${API}/fiscalizacion/${id}/${accion}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' }
     });
     if (!response.ok) {
       const errorData = await readResponseBody(response);
