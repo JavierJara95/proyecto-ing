@@ -1531,3 +1531,272 @@ html, body {
     padding-right: 12px !important;
   }
 }
+
+.table-link {
+  color: #005baa;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+input[type="file"] {
+  padding: 10px;
+  border: 1px solid #d8dee9;
+  border-radius: 8px;
+  background: #fff;
+}
+
+/* =========================================================
+   OPTIMIZACIÓN PANEL FUNCIONARIO 20260613
+   Resultado de expediente con scroll real y lector QR móvil.
+   ========================================================= */
+.expediente-modal-content {
+  width: min(1180px, 96vw) !important;
+  max-width: 96vw !important;
+  max-height: 90vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+.expediente-modal-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: calc(90vh - 68px) !important;
+  overflow: auto !important;
+  padding: 14px !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+.expediente-table-wrap {
+  width: 100%;
+  max-width: 100%;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+#searchResultTable.expediente-table {
+  width: 100%;
+  min-width: 760px;
+  table-layout: fixed;
+  white-space: normal !important;
+}
+
+.expediente-table th,
+.expediente-table td {
+  vertical-align: top;
+  white-space: normal !important;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.expediente-table th:nth-child(1),
+.expediente-table td:nth-child(1) { width: 18%; }
+.expediente-table th:nth-child(2),
+.expediente-table td:nth-child(2) { width: 48%; }
+.expediente-table th:nth-child(3),
+.expediente-table td:nth-child(3) { width: 17%; }
+.expediente-table th:nth-child(4),
+.expediente-table td:nth-child(4) { width: 17%; }
+
+.expediente-type-cell {
+  font-weight: 700;
+  color: #003366;
+}
+
+.expediente-detail-grid {
+  display: grid;
+  grid-template-columns: minmax(130px, 0.38fr) minmax(160px, 1fr);
+  gap: 6px 10px;
+}
+
+.expediente-detail-item {
+  display: contents;
+}
+
+.expediente-detail-label {
+  font-weight: 700;
+  color: #333;
+}
+
+.expediente-detail-value {
+  color: #1f2933;
+  overflow-wrap: anywhere;
+}
+
+.expediente-file-cell a,
+.table-link {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.qr-scanner-panel {
+  margin: 14px 0;
+  padding: 14px;
+  border: 1px solid #d8e0ea;
+  border-radius: 10px;
+  background: #f8fbff;
+}
+
+.qr-scanner-header,
+.qr-scanner-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.qr-scanner-video {
+  display: block;
+  width: 100%;
+  max-width: 460px;
+  min-height: 240px;
+  margin: 12px 0;
+  border-radius: 10px;
+  background: #111827;
+  object-fit: cover;
+}
+
+.qr-scanner-status {
+  margin: 8px 0 12px;
+  color: #333;
+  line-height: 1.45;
+}
+
+@media screen and (max-width: 768px) {
+  .expediente-modal-content {
+    width: 96vw !important;
+    max-width: 96vw !important;
+    max-height: 88vh !important;
+  }
+
+  .expediente-modal-body {
+    max-height: calc(88vh - 62px) !important;
+    padding: 10px !important;
+  }
+
+  #searchResultTable.expediente-table {
+    display: table !important;
+    min-width: 0 !important;
+    width: 100% !important;
+    table-layout: auto;
+    white-space: normal !important;
+  }
+
+  .expediente-table thead,
+  .expediente-table tbody,
+  .expediente-table tr,
+  .expediente-table th,
+  .expediente-table td {
+    white-space: normal !important;
+  }
+
+  .expediente-detail-grid {
+    grid-template-columns: 1fr;
+    gap: 3px;
+  }
+
+  .expediente-detail-label {
+    margin-top: 6px;
+  }
+
+  .expediente-table th,
+  .expediente-table td {
+    font-size: 0.82rem !important;
+    padding: 8px 6px !important;
+  }
+
+  .qr-scanner-video {
+    max-width: 100%;
+    min-height: 220px;
+  }
+
+  .qr-scanner-actions .btn {
+    width: 100%;
+  }
+}
+
+@media screen and (max-width: 520px) {
+  #searchResultTable.expediente-table,
+  #searchResultTable.expediente-table tbody,
+  #searchResultTable.expediente-table tr,
+  #searchResultTable.expediente-table td,
+  #searchResultTable.expediente-table th {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  #searchResultTable.expediente-table tr:first-child {
+    display: none !important;
+  }
+
+  #searchResultTable.expediente-table tr {
+    margin-bottom: 12px;
+    border: 1px solid #dde5ef;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+  }
+
+  #searchResultTable.expediente-table td {
+    border-left: none !important;
+    border-right: none !important;
+  }
+
+  .expediente-type-cell {
+    background: #f0f5fb;
+    font-size: 0.95rem !important;
+  }
+
+  .expediente-folio-cell::before {
+    content: 'Folio asociado: ';
+    font-weight: 700;
+  }
+
+  .expediente-file-cell::before {
+    content: 'Archivo respaldo: ';
+    font-weight: 700;
+  }
+}
+
+/* Ajustes login: campo de contraseña con botón de visualización */
+.password-field {
+  display: flex;
+  width: 100%;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.password-field input {
+  flex: 1;
+  min-width: 0;
+}
+
+.password-toggle {
+  border: 0;
+  border-radius: 12px;
+  padding: 0 14px;
+  background: #4b5563;
+  color: #ffffff;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.password-toggle:hover {
+  background: #374151;
+}
+
+@media (max-width: 520px) {
+  .password-field {
+    flex-direction: column;
+  }
+
+  .password-toggle {
+    padding: 12px 14px;
+  }
+}
+
+.qr-scanner-actions .btn {
+  text-align: center;
+}

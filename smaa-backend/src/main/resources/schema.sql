@@ -56,6 +56,9 @@ CREATE TABLE vehiculos (
   fecha_retorno DATE,
   permiso_temporal BOOLEAN DEFAULT FALSE,
   estado_permiso VARCHAR(50),
+  archivo_respaldo_nombre VARCHAR(512),
+  archivo_respaldo_tipo VARCHAR(255),
+  archivo_respaldo_datos LONGTEXT,
   declaracion_id BIGINT,
   UNIQUE KEY uk_vehiculos_patente (patente),
   CONSTRAINT fk_vehiculos_declaracion FOREIGN KEY (declaracion_id) REFERENCES declaraciones_viaje(id) ON DELETE CASCADE
@@ -68,6 +71,9 @@ CREATE TABLE declaraciones_sag (
   producto_restringido BOOLEAN DEFAULT FALSE,
   observacion VARCHAR(1000),
   estado_revision VARCHAR(50),
+  archivo_respaldo_nombre VARCHAR(512),
+  archivo_respaldo_tipo VARCHAR(255),
+  archivo_respaldo_datos LONGTEXT,
   declaracion_id BIGINT,
   CONSTRAINT fk_declaraciones_sag_declaracion FOREIGN KEY (declaracion_id) REFERENCES declaraciones_viaje(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -80,6 +86,9 @@ CREATE TABLE menores_edad (
   tiene_autorizacion_notarial BOOLEAN DEFAULT FALSE,
   observacion VARCHAR(1000),
   estado_validacion VARCHAR(50),
+  archivo_respaldo_nombre VARCHAR(512),
+  archivo_respaldo_tipo VARCHAR(255),
+  archivo_respaldo_datos LONGTEXT,
   declaracion_id BIGINT,
   CONSTRAINT fk_menores_edad_declaracion FOREIGN KEY (declaracion_id) REFERENCES declaraciones_viaje(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -91,6 +100,9 @@ CREATE TABLE mascotas (
   certificado_sanitario BOOLEAN DEFAULT FALSE,
   vacuna_vigente BOOLEAN DEFAULT FALSE,
   observacion VARCHAR(1000),
+  archivo_respaldo_nombre VARCHAR(512),
+  archivo_respaldo_tipo VARCHAR(255),
+  archivo_respaldo_datos LONGTEXT,
   declaracion_id BIGINT,
   CONSTRAINT fk_mascotas_declaracion FOREIGN KEY (declaracion_id) REFERENCES declaraciones_viaje(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

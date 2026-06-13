@@ -7,6 +7,15 @@ set -euo pipefail
 
 export DB_HOST DB_PORT BACKEND_PORT
 
+: "${SMAA_PUBLIC_BASE_URL:=}"
+CONFIG_JS="/usr/share/nginx/html/js/config.js"
+cat > "${CONFIG_JS}" <<EOF
+// Archivo generado al iniciar Docker.
+// Define la URL publica del PC para que los codigos QR no apunten a localhost.
+window.SMAA_PUBLIC_BASE_URL = "${SMAA_PUBLIC_BASE_URL}";
+EOF
+
+
 echo "Esperando base de datos en ${DB_HOST}:${DB_PORT}..."
 for intento in $(seq 1 60); do
   if nc -z "${DB_HOST}" "${DB_PORT}"; then

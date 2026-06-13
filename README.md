@@ -66,3 +66,8 @@ docker compose up -d
 Ver detalles en:
 
 - `CORRECCION_FOLIO_Y_CONEXION_MOVIL.md`
+
+
+## QR desde celular
+
+Si generas un QR desde `http://localhost`, el celular no podrá abrirlo porque `localhost` apunta al propio celular. Para escanear desde el teléfono, abre el sistema desde `http://IP_DEL_PC` o configura `SMAA_PUBLIC_BASE_URL` antes de levantar Docker. Ver `CAMBIO_QR_IP_CELULAR.md`.

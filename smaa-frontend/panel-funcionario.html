@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="css/styles.css?v=20260612-mobile-final" />
+    <link rel="stylesheet" href="css/styles.css?v=20260613-largefilefix" />
     <title>SMAA - Funcionario</title>
   </head>
   <body class="traveler-page" data-required-role="FUNCIONARIO_ADUANAS">
@@ -18,12 +18,23 @@
       <div class="card">
         <h3>Buscar expediente</h3>
         <form class="form inline" onsubmit="buscarFolio(event)">
-          <input id="folio" placeholder="Folio" value="SMAA-2026-0001" /><button
-            class="btn"
-          >
-            Buscar por folio
-          </button>
+          <input id="folio" placeholder="Folio" value="SMAA-2026-0001" />
+          <button class="btn">Buscar por folio</button>
+          <button class="btn btn-secondary" type="button" onclick="abrirCamaraQr()">Escanear QR</button>
         </form>
+        <div id="qrScannerPanel" class="qr-scanner-panel" hidden>
+          <div class="qr-scanner-header">
+            <strong>Escáner QR</strong>
+            <button class="modal-close" type="button" onclick="cerrarCamaraQr()">×</button>
+          </div>
+          <video id="qrScannerVideo" class="qr-scanner-video" playsinline muted></video>
+          <p id="qrScannerStatus" class="qr-scanner-status">Apunta la cámara al código QR del comprobante.</p>
+          <div class="qr-scanner-actions">
+            <button class="btn btn-secondary" type="button" onclick="document.getElementById('qrScannerFile').click()">Subir imagen QR</button>
+            <button class="btn" type="button" onclick="cerrarCamaraQr()">Cerrar cámara</button>
+          </div>
+          <input id="qrScannerFile" type="file" accept=".png,.jpg,.jpeg,.webp,.gif" hidden onchange="escanearQrDesdeImagen(event)" />
+        </div>
         <form class="form inline" onsubmit="buscarPatente(event)">
           <input id="patente" placeholder="Patente" value="ABCD12" /><button
             class="btn"
@@ -49,15 +60,17 @@
       </div>
     </main>
     <div id="searchResultModal" class="modal" onclick="if(event.target===this) hideSearchResultModal()">
-      <div class="modal-content">
+      <div class="modal-content expediente-modal-content">
         <div class="modal-header">
           <h3>Resultado de búsqueda</h3>
           <button class="modal-close" type="button" onclick="hideSearchResultModal()">×</button>
         </div>
-        <div class="modal-body">
-          <table class="tabla-popup" id="searchResultTable">
-            <tbody></tbody>
-          </table>
+        <div class="modal-body expediente-modal-body">
+          <div class="expediente-table-wrap">
+            <table class="tabla-popup expediente-table" id="searchResultTable">
+              <tbody></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -83,6 +96,7 @@
         </div>
       </div>
     </div>
-    <script src="js/app.js?v=20260612-mobile-final"></script>
+    <script src="js/config.js?v=20260613-largefilefix"></script>
+    <script src="js/app.js?v=20260613-largefilefix"></script>
   </body>
 </html>

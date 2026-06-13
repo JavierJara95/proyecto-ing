@@ -33,6 +33,7 @@ public class VehiculoService {
     }
 
     public List<Vehiculo> listar() { return repository.findAll(); }
+    public List<Vehiculo> buscarPorDeclaracion(Long idDeclaracion) { return repository.findByDeclaracionViajeId(idDeclaracion); }
 
     public Vehiculo buscarPorPatente(String patente) {
         return repository.findByPatente(patente).orElseThrow(() -> new ResourceNotFoundException("Vehículo no encontrado con patente " + patente));

@@ -3,6 +3,54 @@
 // This keeps the frontend working from localhost and from mobile devices on the same WiFi.
 const API = '/api';
 const $ = (id) => document.getElementById(id);
+let qrScannerStream = null;
+let qrScannerFrame = null;
+let qrScannerDetector = null;
+
+function normalizeBaseUrl(url) {
+  return String(url || '').trim().replace(/\/+$/, '');
+}
+
+function isLocalHostName(hostname) {
+  return ['localhost', '127.0.0.1', '::1'].includes(String(hostname || '').toLowerCase());
+}
+
+function isValidHttpUrl(value) {
+  try {
+    const url = new URL(value);
+    return ['http:', 'https:'].includes(url.protocol) && Boolean(url.hostname);
+  } catch (error) {
+    return false;
+  }
+}
+
+function getQrBaseUrl() {
+  const configured = normalizeBaseUrl(window.SMAA_PUBLIC_BASE_URL);
+  if (configured && isValidHttpUrl(configured)) return configured;
+
+  const saved = normalizeBaseUrl(localStorage.getItem('smaa_public_base_url'));
+  if (saved && isValidHttpUrl(saved)) return saved;
+
+  const origin = normalizeBaseUrl(window.location.origin);
+  if (!isLocalHostName(window.location.hostname)) return origin;
+
+  const entered = normalizeBaseUrl(window.prompt(
+    'Para que el QR funcione desde un celular, ingresa la URL del PC en la red WiFi. Ejemplo: http://192.168.1.25',
+    'http://192.168.1.25'
+  ));
+
+  if (entered && isValidHttpUrl(entered)) {
+    localStorage.setItem('smaa_public_base_url', entered);
+    return entered;
+  }
+
+  return origin;
+}
+
+function resetQrBaseUrl() {
+  localStorage.removeItem('smaa_public_base_url');
+  showInfoModal('Configuración de URL pública del QR eliminada. Al generar un nuevo QR desde localhost se solicitará nuevamente la IP del PC.');
+}
 
 function getSmaaRole() {
   return localStorage.getItem('smaa_rol') || '';
@@ -21,21 +69,18 @@ function logoutSmaa() {
 function getMenuItems(menuType, role) {
   if (menuType === 'viajero' || role === 'VIAJERO') {
     return [
-      ['Inicio', 'index.html'],
       ['Viajero', 'dashboard-viajero.html'],
       ['Cerrar sesión', '#logout']
     ];
   }
   if (menuType === 'funcionario' || role === 'FUNCIONARIO_ADUANAS') {
     return [
-      ['Inicio', 'index.html'],
       ['Funcionario', 'panel-funcionario.html'],
       ['Reportes', 'reportes.html'],
       ['Cerrar sesión', '#logout']
     ];
   }
   return [
-    ['Inicio', 'index.html'],
     ['Login', 'login.html'],
     ['Registro', 'registro.html']
   ];
@@ -120,6 +165,7 @@ function formatLabel(key) {
 function flattenObject(obj, prefix = '') {
   const rows = {};
   Object.entries(obj || {}).forEach(([key, value]) => {
+    if (key === 'archivoRespaldoDatos') return;
     const path = prefix ? `${prefix}.${key}` : key;
     if (value && typeof value === 'object' && !Array.isArray(value)) {
       Object.assign(rows, flattenObject(value, path));
@@ -166,6 +212,71 @@ function renderArrayTable(data) {
   `;
 }
 
+
+function isExpedienteCompleto(data) {
+  return data && typeof data === 'object' && data.declaracion && (
+    Array.isArray(data.vehiculos) || Array.isArray(data.menores) || Array.isArray(data.mascotas) || Array.isArray(data.declaracionesSag)
+  );
+}
+
+function archivoRespaldoLink(record) {
+  if (!record || !record.archivoRespaldoDatos || !record.archivoRespaldoNombre) return 'Sin archivo';
+  const href = String(record.archivoRespaldoDatos).startsWith('data:')
+    ? record.archivoRespaldoDatos
+    : `data:${record.archivoRespaldoTipo || 'application/octet-stream'};base64,${record.archivoRespaldoDatos}`;
+  return `<a class="table-link" href="${escapeHTML(href)}" download="${escapeHTML(record.archivoRespaldoNombre)}">${escapeHTML(record.archivoRespaldoNombre)}</a>`;
+}
+
+function renderExpedienteCompletoTable(data) {
+  const declaracion = data.declaracion || {};
+  const sections = [
+    ['Declaración de viaje', [declaracion]],
+    ['Vehículos', data.vehiculos || []],
+    ['Menores', data.menores || []],
+    ['Mascotas', data.mascotas || []],
+    ['Declaraciones SAG', data.declaracionesSag || []]
+  ];
+
+  const rows = [];
+  sections.forEach(([section, records]) => {
+    if (!records.length) {
+      rows.push(`
+        <tr class="expediente-empty-row">
+          <td class="expediente-type-cell">${escapeHTML(section)}</td>
+          <td colspan="3">No registra información asociada.</td>
+        </tr>`);
+      return;
+    }
+
+    records.forEach((record, index) => {
+      const details = Object.entries(flattenObject(record))
+        .filter(([key]) => !['declaracionViaje.id', 'declaracionViaje.folio', 'archivoRespaldoNombre', 'archivoRespaldoTipo'].includes(key))
+        .map(([key, value]) => `
+          <div class="expediente-detail-item">
+            <span class="expediente-detail-label">${escapeHTML(formatLabel(key))}</span>
+            <span class="expediente-detail-value">${escapeHTML(value === null || value === undefined || value === '' ? 'Sin información' : value)}</span>
+          </div>`)
+        .join('');
+      rows.push(`
+        <tr class="expediente-record-row">
+          <td class="expediente-type-cell">${escapeHTML(section)}${records.length > 1 ? ` #${index + 1}` : ''}</td>
+          <td class="expediente-detail-cell"><div class="expediente-detail-grid">${details || '<span>Sin detalle</span>'}</div></td>
+          <td class="expediente-folio-cell">${escapeHTML(record.declaracionViaje?.folio || declaracion.folio || '')}</td>
+          <td class="expediente-file-cell">${section === 'Declaración de viaje' ? 'No aplica' : archivoRespaldoLink(record)}</td>
+        </tr>`);
+    });
+  });
+
+  return `
+    <tr>
+      <th>Tipo de registro</th>
+      <th>Información del expediente</th>
+      <th>Folio asociado</th>
+      <th>Archivo respaldo</th>
+    </tr>
+    ${rows.join('')}`;
+}
+
 function showSearchResultModal(data) {
   const modal = $('searchResultModal');
   const tbody = $('searchResultTable')?.querySelector('tbody');
@@ -174,7 +285,7 @@ function showSearchResultModal(data) {
     return;
   }
 
-  tbody.innerHTML = Array.isArray(data) ? renderArrayTable(data) : renderKeyValueTable(data);
+  tbody.innerHTML = isExpedienteCompleto(data) ? renderExpedienteCompletoTable(data) : (Array.isArray(data) ? renderArrayTable(data) : renderKeyValueTable(data));
   const contenedorQR = $('qr-comprobante');
   if (contenedorQR) {
     contenedorQR.innerHTML = ""; // Limpiamos cualquier QR anterior
@@ -189,7 +300,7 @@ function showSearchResultModal(data) {
 
     // Si encontramos un folio, dibujamos el QR
     if (folioEncontrado) {
-      const baseUrl = window.location.origin;
+      const baseUrl = getQrBaseUrl();
       // La URL a la que irá el funcionario al escanear:
       const urlEscaneo = `${baseUrl}/panel-funcionario.html?buscarFolio=${folioEncontrado}`;
 
@@ -307,7 +418,7 @@ function generarQR(folio) {
 
   // 2. Armamos la URL dinámica. 
   // window.location.origin pondrá "http://localhost" o "http://192.168.1.X" automáticamente
-  const baseUrl = window.location.origin;
+  const baseUrl = getQrBaseUrl();
 
   // 3. Creamos la ruta a la que irá el funcionario al escanear
   const urlEscaneo = `${baseUrl}/panel-funcionario.html?buscarFolio=${folio}`;
@@ -426,13 +537,199 @@ function saveFolio(folio) {
 
 function getFolioFromUrl() {
   const params = new URLSearchParams(window.location.search);
-  return normalizeFolio(params.get('folio'));
+  return normalizeFolio(params.get('folio') || params.get('buscarFolio'));
+}
+
+function extraerFolioDesdeQr(textoQr) {
+  const texto = String(textoQr || '').trim();
+  if (!texto) return '';
+
+  try {
+    const url = new URL(texto, window.location.origin);
+    const folioUrl = url.searchParams.get('buscarFolio') || url.searchParams.get('folio');
+    if (folioUrl) return normalizeFolio(folioUrl);
+  } catch (error) {
+    // Si el QR no contiene una URL, se interpreta como texto plano.
+  }
+
+  const limpio = texto.replace(/^SMAA-QR-/i, '');
+  const match = limpio.match(/SMAA-\d{4}-\d{4,}/i) || limpio.match(/[A-Z]{2,10}-\d{3,}/i);
+  return normalizeFolio(match ? match[0] : limpio);
+}
+
+function aplicarFolioEscaneado(folio, buscarAutomaticamente = true) {
+  const folioNormalizado = normalizeFolio(folio);
+  if (!folioNormalizado) {
+    showErrorModal('No se pudo obtener el folio desde el código QR. Intenta nuevamente o escribe el folio manualmente.');
+    return;
+  }
+
+  const folioInput = $('folio');
+  if (folioInput) folioInput.value = folioNormalizado;
+  saveFolio(folioNormalizado);
+  cerrarCamaraQr();
+
+  if (buscarAutomaticamente && typeof buscarFolio === 'function') {
+    buscarFolio({ preventDefault() {} });
+  }
+}
+
+function setQrScannerStatus(message) {
+  const status = $('qrScannerStatus');
+  if (status) status.textContent = message;
+}
+
+function isCameraSecureContextAllowed() {
+  return window.isSecureContext || ['localhost', '127.0.0.1'].includes(window.location.hostname);
+}
+
+async function abrirCamaraQr() {
+  const panel = $('qrScannerPanel');
+  if (panel) panel.hidden = false;
+
+  if (!('BarcodeDetector' in window)) {
+    setQrScannerStatus('Este navegador no permite lectura automática de QR. Usa “Subir imagen QR” o escribe el folio manualmente.');
+    return;
+  }
+
+  if (!navigator.mediaDevices?.getUserMedia || !isCameraSecureContextAllowed()) {
+    setQrScannerStatus('La cámara en vivo requiere HTTPS o localhost. En celular por WiFi usa “Subir imagen QR”.');
+    return;
+  }
+
+  try {
+    qrScannerDetector = new BarcodeDetector({ formats: ['qr_code'] });
+    qrScannerStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' } },
+      audio: false
+    });
+    const video = $('qrScannerVideo');
+    if (!video) return;
+    video.srcObject = qrScannerStream;
+    await video.play();
+    setQrScannerStatus('Cámara activa. Apunta al código QR del comprobante.');
+    escanearQrDesdeVideo();
+  } catch (error) {
+    console.error(error);
+    setQrScannerStatus('No se pudo abrir la cámara en vivo. Usa “Subir imagen QR” para seleccionar una imagen desde archivos o galería.');
+  }
+}
+
+async function escanearQrDesdeVideo() {
+  const video = $('qrScannerVideo');
+  if (!video || !qrScannerDetector || video.readyState < 2) {
+    qrScannerFrame = requestAnimationFrame(escanearQrDesdeVideo);
+    return;
+  }
+
+  try {
+    const codes = await qrScannerDetector.detect(video);
+    if (codes.length > 0) {
+      const folio = extraerFolioDesdeQr(codes[0].rawValue);
+      aplicarFolioEscaneado(folio, true);
+      return;
+    }
+  } catch (error) {
+    console.error(error);
+  }
+
+  qrScannerFrame = requestAnimationFrame(escanearQrDesdeVideo);
+}
+
+async function escanearQrDesdeImagen(event) {
+  const file = event?.target?.files?.[0];
+  if (!file) return;
+
+  const extensionQr = String(file.name || '').toLowerCase().split('.').pop();
+  if (!['png', 'jpg', 'jpeg', 'webp', 'gif'].includes(extensionQr)) {
+    showErrorModal('Debes seleccionar una imagen del código QR en formato PNG, JPG, JPEG, WEBP o GIF.');
+    event.target.value = '';
+    return;
+  }
+
+  if (!('BarcodeDetector' in window)) {
+    showErrorModal('Tu navegador permite seleccionar el archivo, pero no permite leer el QR automáticamente. Escribe el folio manualmente o usa Chrome/Edge actualizado en Android.');
+    event.target.value = '';
+    return;
+  }
+
+  try {
+    const detector = new BarcodeDetector({ formats: ['qr_code'] });
+    const bitmap = await createImageBitmap(file);
+    const codes = await detector.detect(bitmap);
+    if (!codes.length) {
+      showErrorModal('No se detectó un código QR en el archivo. Sube una imagen más clara del código o escribe el folio manualmente.');
+      return;
+    }
+    const folio = extraerFolioDesdeQr(codes[0].rawValue);
+    aplicarFolioEscaneado(folio, true);
+  } catch (error) {
+    console.error(error);
+    showErrorModal('No se pudo leer el código QR del archivo. Intenta con otra imagen o escribe el folio manualmente.');
+  } finally {
+    event.target.value = '';
+  }
+}
+
+function cerrarCamaraQr() {
+  if (qrScannerFrame) {
+    cancelAnimationFrame(qrScannerFrame);
+    qrScannerFrame = null;
+  }
+  if (qrScannerStream) {
+    qrScannerStream.getTracks().forEach(track => track.stop());
+    qrScannerStream = null;
+  }
+  const video = $('qrScannerVideo');
+  if (video) {
+    video.pause();
+    video.srcObject = null;
+  }
+  const panel = $('qrScannerPanel');
+  if (panel) panel.hidden = true;
 }
 
 function getCurrentFolio() {
   const input = $('folioDeclaracion');
   return normalizeFolio(input?.value || getFolioFromUrl() || getSavedFolio());
 }
+
+
+function normalizarNombreArchivo(nombre, maxLength = 180) {
+  const original = String(nombre || 'respaldo').trim().replace(/[\\/:*?"<>|]+/g, '_');
+  if (original.length <= maxLength) return original;
+
+  const lastDot = original.lastIndexOf('.');
+  const extension = lastDot > 0 ? original.slice(lastDot) : '';
+  const base = lastDot > 0 ? original.slice(0, lastDot) : original;
+  const extensionLimitada = extension.length > 20 ? extension.slice(0, 20) : extension;
+  const baseMax = Math.max(20, maxLength - extensionLimitada.length - 12);
+  return `${base.slice(0, baseMax)}_recortado${extensionLimitada}`;
+}
+
+function readFileAsDataUrl(fileInputId = 'archivoRespaldo') {
+  const input = $(fileInputId);
+  const file = input?.files?.[0];
+  if (!file) return Promise.resolve({});
+
+  const maxBytes = 10 * 1024 * 1024;
+  if (file.size > maxBytes) {
+    showErrorModal('El archivo de respaldo no puede superar los 10 MB. Si estás desde celular, selecciona un archivo comprimido o PDF liviano.');
+    return Promise.resolve(null);
+  }
+
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve({
+      archivoRespaldoNombre: normalizarNombreArchivo(file.name),
+      archivoRespaldoTipo: file.type || 'application/octet-stream',
+      archivoRespaldoDatos: reader.result
+    });
+    reader.onerror = () => reject(new Error('No se pudo leer el archivo de respaldo.'));
+    reader.readAsDataURL(file);
+  });
+}
+
 
 async function resolverDeclaracionPorFolio(folio) {
   const folioNormalizado = normalizeFolio(folio);
@@ -507,13 +804,57 @@ async function validarFolioDashboard(e) {
   initFolioInputsAndDashboard();
 }
 
+
+function initPanelFuncionarioFromQr() {
+  const current = window.location.pathname.split('/').pop();
+  const params = new URLSearchParams(window.location.search);
+  const folioUrl = normalizeFolio(params.get('buscarFolio') || params.get('folio'));
+  const folioEscaneado = folioUrl || (current === 'panel-funcionario.html' ? getSavedFolio() : '');
+  const folioInput = $('folio');
+  if (!folioEscaneado || !folioInput) return;
+  folioInput.value = folioEscaneado;
+  saveFolio(folioEscaneado);
+  if (current === 'panel-funcionario.html') {
+    setTimeout(() => buscarFolio({ preventDefault() {} }), 350);
+  }
+}
+
+function inicializarLimpiezaCamposDemo() {
+  document.querySelectorAll('[data-clear-on-first-input="true"]').forEach(input => {
+    if (input.dataset.clearReady === 'true') return;
+    input.dataset.clearReady = 'true';
+    input.dataset.initialValue = input.value || '';
+
+    const clearOnce = () => {
+      if (input.dataset.cleared === 'true') return;
+      if (input.value === input.dataset.initialValue) {
+        input.value = '';
+      }
+      input.dataset.cleared = 'true';
+    };
+
+    input.addEventListener('focus', clearOnce);
+    input.addEventListener('input', clearOnce, { once: true });
+  });
+}
+
+function togglePasswordVisibility(inputId, button) {
+  const input = $(inputId);
+  if (!input) return;
+  const mostrar = input.type === 'password';
+  input.type = mostrar ? 'text' : 'password';
+  if (button) button.textContent = mostrar ? 'Ocultar' : 'Mostrar';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  inicializarLimpiezaCamposDemo();
   initRoleNavigation();
   enforceRequiredRole();
   initPortalByRole();
   ['fechaViaje', 'fechaSalida'].forEach(id => { if ($(id)) $(id).value = todayPlus(7); });
   if ($('fechaRetorno')) $('fechaRetorno').value = todayPlus(20);
   initFolioInputsAndDashboard();
+  initPanelFuncionarioFromQr();
 });
 
 async function login(e) {
@@ -589,6 +930,8 @@ async function crearVehiculo(e) {
   e.preventDefault();
   const declaracion = await resolverDeclaracionPorFolio(getCurrentFolio());
   if (!declaracion) return;
+  const archivoRespaldo = await readFileAsDataUrl();
+  if (archivoRespaldo === null) return;
   try {
     const response = await fetch(`${API}/vehiculos`, {
       method: 'POST',
@@ -602,6 +945,7 @@ async function crearVehiculo(e) {
         conductorAutorizado: $('conductorAutorizado').value,
         fechaSalida: $('fechaSalida').value,
         fechaRetorno: $('fechaRetorno').value,
+        ...archivoRespaldo,
         declaracionViaje: { id: declaracion.id }
       })
     });
@@ -624,6 +968,8 @@ async function crearSag(e) {
   e.preventDefault();
   const declaracion = await resolverDeclaracionPorFolio(getCurrentFolio());
   if (!declaracion) return;
+  const archivoRespaldo = await readFileAsDataUrl();
+  if (archivoRespaldo === null) return;
   try {
     const response = await fetch(`${API}/sag`, {
       method: 'POST',
@@ -633,6 +979,7 @@ async function crearSag(e) {
         tipoProducto: $('tipoProducto').value,
         productoRestringido: bool('productoRestringido'),
         observacion: $('observacion').value,
+        ...archivoRespaldo,
         declaracionViaje: { id: declaracion.id }
       })
     });
@@ -655,6 +1002,8 @@ async function crearMenor(e) {
   e.preventDefault();
   const declaracion = await resolverDeclaracionPorFolio(getCurrentFolio());
   if (!declaracion) return;
+  const archivoRespaldo = await readFileAsDataUrl();
+  if (archivoRespaldo === null) return;
   try {
     const response = await fetch(`${API}/menores`, {
       method: 'POST',
@@ -664,6 +1013,7 @@ async function crearMenor(e) {
         documento: $('documento').value,
         viajaConAmbosPadres: bool('viajaConAmbosPadres'),
         tieneAutorizacionNotarial: bool('tieneAutorizacionNotarial'),
+        ...archivoRespaldo,
         declaracionViaje: { id: declaracion.id }
       })
     });
@@ -686,6 +1036,8 @@ async function crearMascota(e) {
   e.preventDefault();
   const declaracion = await resolverDeclaracionPorFolio(getCurrentFolio());
   if (!declaracion) return;
+  const archivoRespaldo = await readFileAsDataUrl();
+  if (archivoRespaldo === null) return;
   try {
     const response = await fetch(`${API}/mascotas`, {
       method: 'POST',
@@ -696,6 +1048,7 @@ async function crearMascota(e) {
         certificadoSanitario: bool('certificadoSanitario'),
         vacunaVigente: bool('vacunaVigente'),
         observacion: $('observacion').value,
+        ...archivoRespaldo,
         declaracionViaje: { id: declaracion.id }
       })
     });
@@ -732,7 +1085,9 @@ async function verComprobante(e) {
 async function buscarFolio(e) {
   e.preventDefault();
   try {
-    const response = await fetch(`${API}/fiscalizacion/folio/${$('folio').value}`);
+    const folio = normalizeFolio($('folio').value);
+    if (!folio) { showErrorModal('Debes ingresar o escanear un folio.'); return; }
+    const response = await fetch(`${API}/fiscalizacion/folio/${encodeURIComponent(folio)}`);
     if (!response.ok) {
       const errorData = await readResponseBody(response);
       throw new Error(getErrorMessage(errorData, response.statusText || 'Error en la búsqueda'));

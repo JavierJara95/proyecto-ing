@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="css/styles.css?v=20260612-mobile-final" />
+    <link rel="stylesheet" href="css/styles.css?v=20260613-largefilefix" />
     <title>SMAA - Login</title>
   </head>
   <body class="traveler-page">
@@ -21,13 +21,22 @@
             id="correo"
             type="email"
             required
+            autocomplete="username"
+            data-clear-on-first-input="true"
             value="correo@smaa.cl" /></label
         ><label
-          >Password<input
-            id="password"
-            type="password"
-            required
-            value="1234" /></label
+          >Password
+          <div class="password-field">
+            <input
+              id="password"
+              type="password"
+              required
+              autocomplete="current-password"
+              data-clear-on-first-input="true"
+              value="1234" />
+            <button class="password-toggle" type="button" onclick="togglePasswordVisibility('password', this)">Mostrar</button>
+          </div>
+        </label
         ><button class="btn" type="submit">Ingresar</button>
         <a href="registro.html" class="btn" style="text-align: center; display: block; background: #4b5563; margin-top: 10px;">Registrarse</a>
       </form>
@@ -40,6 +49,7 @@
         </div>
       </div>
     </main>
-    <script src="js/app.js?v=20260612-mobile-final"></script>
+    <script src="js/config.js?v=20260613-largefilefix"></script>
+    <script src="js/app.js?v=20260613-largefilefix"></script>
   </body>
 </html>

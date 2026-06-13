@@ -4,7 +4,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="css/styles.css?v=20260612-mobile-final" />
+    <link rel="stylesheet" href="css/styles.css?v=20260613-largefilefix" />
     <title>SMAA - Inicio</title>
   </head>
   <body class="traveler-page">
@@ -45,12 +45,15 @@
         </div>
       </section>
     </main>
+    <script src="js/config.js?v=20260613-largefilefix"></script>
+    <script src="js/app.js?v=20260613-largefilefix"></script>
       <script>
     // Este script dibuja el QR de la portada apuntando a la declaración
     document.addEventListener("DOMContentLoaded", function () {
       const contenedor = document.getElementById("qr-inicio");
       if (contenedor) {
-        const urlDestino = window.location.origin + "/declaracion.html";
+        const baseUrl = window.getSmaaQrBaseUrl ? window.getSmaaQrBaseUrl() : window.location.origin;
+        const urlDestino = baseUrl + "/declaracion.html";
         new QRCode(contenedor, {
           text: urlDestino,
           width: 120,
@@ -61,6 +64,5 @@
       }
     });
   </script>
-    <script src="js/app.js?v=20260612-mobile-final"></script>
   </body>
 </html>
