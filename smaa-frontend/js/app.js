@@ -175,6 +175,34 @@ function showSearchResultModal(data) {
   }
 
   tbody.innerHTML = Array.isArray(data) ? renderArrayTable(data) : renderKeyValueTable(data);
+  const contenedorQR = $('qr-comprobante');
+  if (contenedorQR) {
+    contenedorQR.innerHTML = ""; // Limpiamos cualquier QR anterior
+
+    // Extraemos el folio de la respuesta de la base de datos
+    let folioEncontrado = null;
+    if (!Array.isArray(data) && data.folio) {
+      folioEncontrado = data.folio;
+    } else if (Array.isArray(data) && data.length > 0 && data[0].folio) {
+      folioEncontrado = data[0].folio;
+    }
+
+    // Si encontramos un folio, dibujamos el QR
+    if (folioEncontrado) {
+      const baseUrl = window.location.origin;
+      // La URL a la que irá el funcionario al escanear:
+      const urlEscaneo = `${baseUrl}/panel-funcionario.html?buscarFolio=${folioEncontrado}`;
+
+      new QRCode(contenedorQR, {
+        text: urlEscaneo,
+        width: 150,
+        height: 150,
+        colorDark: "#003366",
+        colorLight: "#ffffff"
+      });
+    }
+  }
+
   modal.classList.add('active');
 }
 
@@ -258,14 +286,41 @@ function showSuccessModal(message, folio = null) {
       copyButton.style.display = 'inline-block';
       copyButton.textContent = 'Copiar folio';
     }
+    generarQR(folio);
+
   } else {
     if (folioElement) folioElement.style.display = 'none';
     if (copyButton) copyButton.style.display = 'none';
+    const contenedor = $('contenedor-qr');
+    if (contenedor) contenedor.innerHTML = "";
   }
   
   modal.classList.add('active');
 }
+// DIBUJAR EL QR
+function generarQR(folio) {
+  const contenedor = $('contenedor-qr');
+  if (!contenedor) return; // Si no encuentra el div en el HTML, no hace nada
 
+  // 1. Limpiamos por si había un QR de una declaración anterior
+  contenedor.innerHTML = "";
+
+  // 2. Armamos la URL dinámica. 
+  // window.location.origin pondrá "http://localhost" o "http://192.168.1.X" automáticamente
+  const baseUrl = window.location.origin;
+
+  // 3. Creamos la ruta a la que irá el funcionario al escanear
+  const urlEscaneo = `${baseUrl}/panel-funcionario.html?buscarFolio=${folio}`;
+
+  // 4. Dibujamos el QR
+  new QRCode(contenedor, {
+    text: urlEscaneo,
+    width: 150,
+    height: 150,
+    colorDark: "#003366",
+    colorLight: "#ffffff"
+  });
+}
 async function copyFolioFromSuccessModal() {
   const folioElement = $('successModalFolio');
   const copyButton = $('copyFolioButton');

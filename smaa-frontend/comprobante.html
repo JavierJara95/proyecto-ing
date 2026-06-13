@@ -2,6 +2,7 @@
 <html lang="es">
 
 <head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="css/styles.css?v=20260612-mobile-final" />
@@ -31,6 +32,7 @@
         <button class="modal-close" type="button" onclick="hideSearchResultModal()">×</button>
       </div>
       <div class="modal-body">
+        <div id="qr-comprobante" style="margin-bottom: 15px; display: flex; justify-content: center;"></div>
         <table class="tabla-popup" id="searchResultTable">
           <tbody></tbody>
         </table>

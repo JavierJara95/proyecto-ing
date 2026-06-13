@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="es">
   <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="css/styles.css?v=20260612-mobile-final" />
@@ -24,10 +25,10 @@
           <a class="btn" href="login.html">Ingresar al sistema</a>
         </div>
         <div class="card">
-          <h3>QR Simulado</h3>
-          <p class="qr">SMAA-QR-FOLIO</p>
-          <p>Optimiza la atención en pasos fronterizos de Chile.</p>
-        </div>
+        <h3>QR de acceso</h3>
+        <div id="qr-inicio" style="margin: 15px auto; display: flex; justify-content: center;"></div>
+        <p>Optimiza la atención en pasos fronterizos de Chile.</p>
+      </div>
       </section>
       <section class="grid">
         <div class="card">
@@ -44,6 +45,22 @@
         </div>
       </section>
     </main>
+      <script>
+    // Este script dibuja el QR de la portada apuntando a la declaración
+    document.addEventListener("DOMContentLoaded", function () {
+      const contenedor = document.getElementById("qr-inicio");
+      if (contenedor) {
+        const urlDestino = window.location.origin + "/declaracion.html";
+        new QRCode(contenedor, {
+          text: urlDestino,
+          width: 120,
+          height: 120,
+          colorDark: "#003366",
+          colorLight: "#ffffff"
+        });
+      }
+    });
+  </script>
     <script src="js/app.js?v=20260612-mobile-final"></script>
   </body>
 </html>
